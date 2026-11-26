@@ -7,21 +7,11 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-FORMS_JSON = ROOT.parent / "surveys" / "builder-network" / "satellites" / "forms.json"
+SATS = ROOT.parent / "surveys" / "builder-network" / "satellites"
 OUT = ROOT / "questionnaires"
 
-# Prefer published Google Forms. Draft suite HTML is not the product.
-LIVE = [
-    {
-        "name": "Unblock",
-        "desc": "Acute stuck — route help now",
-        "url": "https://docs.google.com/forms/d/e/1FAIpQLSdb80FeUK0y7hf57AStv90bM5dNjHxkuiiYbeG0Iv_KrzD_og/viewform",
-        "group": "core",
-    },
-]
-
-# Descs for satellite shorts
 DESC = {
+    "Unblock": "Acute stuck — route help now",
     "Reach": "How we contact you + permission",
     "Demand": "What you wish existed — pay / commit",
     "Talent": "What you can ship + proof",
@@ -34,27 +24,70 @@ DESC = {
     "Skills detail": "Skills depth",
     "Pulse color": "Pulse / HEX familiarity color",
     "Open dump": "Open notes dump",
+    "Referral": "Referral site / dashboard interest",
+    "Creators / Cam": "Cam & tip rails · Just the Tip · SuperChat (18+)",
+    "Education": "HEX literacy · take a class · teach",
+    "Content / Media": "Video wants · favorite influencers",
+    "Onboarding / Rails": "In/out of Pulse · onboard classes · ideas",
+    "NFTs / Art": "Artists · collab · hire · mint wants",
+    "Hardware": "Tablet pallet / bulk devices",
+    "DeFi / Yield": "Where you get yield — what’s broken",
+    "Safety / Scams": "Burns · check before you click",
+    "Pulse Products": "Existing products: used · like · missing",
+    "Pump.tires": "Launchpad features + gaps",
+    "Data": "Favorite / missing / unavailable data",
 }
 
-CORE_SHORTS = {"Reach", "Demand", "Talent", "Heartbeat", "Projects"}
+CORE_SHORTS = {"Unblock", "Reach", "Demand", "Talent", "Heartbeat", "Projects"}
+SPECIALTY_SHORTS = {
+    "Referral",
+    "Creators / Cam",
+    "Education",
+    "Content / Media",
+    "Onboarding / Rails",
+    "NFTs / Art",
+    "Hardware",
+    "DeFi / Yield",
+    "Safety / Scams",
+    "Pulse Products",
+    "Pump.tires",
+    "Data",
+}
+
+
+def group_for(short: str) -> str:
+    if short in CORE_SHORTS:
+        return "core"
+    if short in SPECIALTY_SHORTS:
+        return "specialty"
+    return "more"
 
 
 def main() -> None:
-    rows = json.loads(FORMS_JSON.read_text(encoding="utf-8"))
-    for row in rows:
-        short = row["short"]
-        LIVE.append(
-            {
-                "name": short,
-                "desc": DESC.get(short, short),
-                "url": row["published"],
-                "group": "core" if short in CORE_SHORTS else "more",
-            }
-        )
+    live = [
+        {
+            "name": "Unblock",
+            "desc": DESC["Unblock"],
+            "url": "https://docs.google.com/forms/d/e/1FAIpQLSdb80FeUK0y7hf57AStv90bM5dNjHxkuiiYbeG0Iv_KrzD_og/viewform",
+            "group": "core",
+        }
+    ]
+    for path in (SATS / "forms.json", SATS / "specialty-forms.json"):
+        rows = json.loads(path.read_text(encoding="utf-8"))
+        for row in rows:
+            short = row["short"]
+            live.append(
+                {
+                    "name": short,
+                    "desc": DESC.get(short, short),
+                    "url": row["published"],
+                    "group": group_for(short),
+                }
+            )
 
     def tiles(group: str) -> str:
         bits = []
-        for item in LIVE:
+        for item in live:
             if item["group"] != group:
                 continue
             bits.append(
@@ -91,6 +124,13 @@ def main() -> None:
 {tiles("core")}
       </div>
     </section>
+    <section class="block" aria-labelledby="spec-h">
+      <h2 id="spec-h" class="section-label">Specialty</h2>
+      <p class="section-note">Creators / Cam is 18+ business intake.</p>
+      <div class="grid">
+{tiles("specialty")}
+      </div>
+    </section>
     <section class="block" aria-labelledby="more-h">
       <h2 id="more-h" class="section-label">More satellites</h2>
       <div class="grid">
@@ -107,15 +147,7 @@ def main() -> None:
 """
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "index.html").write_text(page, encoding="utf-8")
-
-    # Remove old draft HTML pages so they aren't mistaken for the forms.
-    kept = {"index.html", "questionnaires.css"}
-    removed = 0
-    for p in OUT.iterdir():
-        if p.is_file() and p.name not in kept:
-            p.unlink()
-            removed += 1
-    print(f"wrote live-forms index ({len(LIVE)} forms); removed {removed} draft pages")
+    print(f"wrote live-forms index ({len(live)} forms)")
 
 
 if __name__ == "__main__":
