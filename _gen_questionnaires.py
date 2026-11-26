@@ -79,7 +79,7 @@ def main() -> None:
         "Unblock": {
             "name": "Unblock",
             "desc": DESC["Unblock"],
-            "url": "https://docs.google.com/forms/d/e/1FAIpQLSdb80FeUK0y7hf57AStv90bM5dNjHxkuiiYbeG0Iv_KrzD_og/viewform",
+            "url": "https://docs.google.com/forms/d/e/1FAIpQLScKQrCYXa-xvdrAy-peRWNbLbNRr33jBTqN8xzbs7KdSUF3Nw/viewform",
         }
     }
     for path in (SATS / "forms.json", SATS / "specialty-forms.json"):
