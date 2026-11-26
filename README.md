@@ -2,7 +2,17 @@
 
 Root GitHub Pages hub → **https://ihelpmaybe.github.io/**
 
-Static index linking project sites (Garden, Heart’s Archive, SellHEX). No custom domain.
+Static index linking project sites (Garden, Heart’s Archive, SellHEX) plus **Questionnaires** (`/questionnaires/`). No custom domain.
+
+## Questionnaires
+
+Source drafts: `../surveys/builder-network/suite/`. Regenerate pages:
+
+```bash
+python _gen_questionnaires.py
+```
+
+Core Unblock / Reach / Demand / Talent / Heartbeat / Projects link to live Google Forms. Specialty doors publish as draft text until Forms ship.
 
 ## Ship
 
