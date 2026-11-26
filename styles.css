@@ -139,6 +139,16 @@ main,
   color: var(--text-2);
 }
 
+.care {
+  margin: 1rem 0 0;
+  max-width: 38rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-3);
+  border-left: 2px solid var(--border-strong);
+  padding-left: 0.85rem;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
