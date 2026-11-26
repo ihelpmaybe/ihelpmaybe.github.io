@@ -40,6 +40,12 @@ META = [
     ("16-pulse-products", "Pulse Products", "Existing products: used · like · missing", "specialty"),
     ("17-pump-tires", "Pump.tires", "Launchpad features + gaps", "specialty"),
     ("18-data", "Data", "Favorite / missing / unavailable data", "specialty"),
+    (
+        "19-free-richard-heart",
+        "Free Richard Heart",
+        "Campaign help · Start Here guide · letters & contacts",
+        "specialty",
+    ),
 ]
 
 
@@ -148,13 +154,36 @@ SHELL_FOOT = """
 """
 
 
+GUIDE_LINKS = {
+    "19-free-richard-heart": (
+        "https://docs.google.com/document/d/1RY5FGj8KCyX783s9WLq2aKIQ-C9rsLAo76nDOTpm8Ow/edit",
+        "Open Start Here guide",
+    ),
+}
+
+
 def write_detail(slug: str, name: str, desc: str, body_md: str) -> None:
     form = FORMS.get(slug)
-    cta = ""
+    guide = GUIDE_LINKS.get(slug)
+    bits: list[str] = ['<p class="cta-row">']
+    if guide:
+        bits.append(
+            f'<a class="cta" href="{html.escape(guide[0])}" rel="noopener">{html.escape(guide[1])}</a>'
+        )
     if form:
-        cta = f'<p class="cta-row"><a class="cta" href="{html.escape(form)}" rel="noopener">Take Google Form</a></p>'
-    else:
-        cta = '<p class="cta-row"><span class="badge">Draft text</span> <span class="muted">Google Form link lands when we ship the live Form from this draft.</span></p>'
+        bits.append(
+            f'<a class="cta" href="{html.escape(form)}" rel="noopener">Take Google Form</a>'
+        )
+    elif not guide:
+        bits.append(
+            '<span class="badge">Draft text</span> <span class="muted">Google Form link lands when we ship the live Form from this draft.</span>'
+        )
+    elif guide and not form:
+        bits.append(
+            '<span class="badge">Draft text</span> <span class="muted">Questionnaire draft — Form link later.</span>'
+        )
+    bits.append("</p>")
+    cta = "".join(bits)
 
     page = (
         SHELL_HEAD.format(title=html.escape(name), desc=html.escape(desc))
