@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Generate /questionnaires/ index — live Google Form links only."""
+"""Generate /questionnaires/ index — Tier A+B featured; Tier C under More."""
 from __future__ import annotations
 
 import html
@@ -12,83 +12,91 @@ OUT = ROOT / "questionnaires"
 
 DESC = {
     "Unblock": "Acute stuck — route help now",
-    "Reach": "How we contact you + permission",
-    "Demand": "What you wish existed — pay / commit",
-    "Talent": "What you can ship + proof",
-    "Heartbeat": "What you’re working on now",
-    "Projects": "Project as entity — missing pieces",
-    "Balance sheet": "Resources / gaps (satellite)",
-    "Collaboration": "Who you’re looking to work with",
-    "Incentives": "What would move you to act",
-    "Problems": "Problems / stuck points",
-    "Skills detail": "Skills depth",
-    "Pulse color": "Pulse / HEX familiarity color",
-    "Open dump": "Open notes dump",
-    "Referral": "Referral site / dashboard interest",
-    "Creators / Cam": "Cam & tip rails · Just the Tip · SuperChat (18+)",
-    "Education": "HEX literacy · take a class · teach",
-    "Content / Media": "Video wants · favorite influencers",
-    "Onboarding / Rails": "In/out of Pulse · onboard classes · ideas",
+    "Reach": "Cohort / contact (merged into Demand — unfeatured)",
+    "Demand": "Spine — should we exist in a lane?",
+    "Talent": "Proof — who is real to intro",
+    "Heartbeat": "Motion (merged into Demand — unfeatured)",
+    "Projects": "Project as entity — corpse or customer?",
+    "Balance sheet": "Heavy satellite — thin-merged; unfeatured",
+    "Collaboration": "Merged into Talent — unfeatured",
+    "Incentives": "Merged into Talent — unfeatured",
+    "Problems": "Merged into Demand — unfeatured",
+    "Skills detail": "Merged into Talent — unfeatured",
+    "Pulse color": "Lore — archived",
+    "Open dump": "Noise door — archived",
+    "Referral": "Merged into Demand — unfeatured",
+    "Creators / Cam": "Cam & tip rails · Just the Tip · SuperChat (18+) — catalog",
+    "Education": "HEX literacy · classes · content wants",
+    "Content / Media": "Merged into Education — unfeatured",
+    "Onboarding / Rails": "Entry pain · normie lens",
     "NFTs / Art": "Artists · collab · hire · mint wants",
-    "Hardware": "Tablet pallet / bulk devices",
-    "DeFi / Yield": "Where you get yield — what’s broken",
-    "Safety / Scams": "Burns · check before you click",
-    "Pulse Products": "Existing products: used · like · missing",
-    "Pump.tires": "Launchpad features + gaps",
-    "Data": "Favorite / missing / unavailable data",
+    "Hardware": "Niche — archived",
+    "DeFi / Yield": "Yield / LP / HEX money lens",
+    "Safety / Scams": "Trust · drain fear",
+    "Pulse Products": "Used · like · missing",
+    "Pump.tires": "Meme launchpad lens",
+    "Data": "Merged into Demand — unfeatured",
 }
 
-CORE_SHORTS = {"Unblock", "Reach", "Demand", "Talent", "Heartbeat", "Projects"}
-SPECIALTY_SHORTS = {
-    "Referral",
-    "Creators / Cam",
-    "Education",
-    "Content / Media",
+# Tier A + B featured
+FEATURED_ORDER = [
+    "Demand",
+    "Talent",
+    "Unblock",
+    "Projects",
     "Onboarding / Rails",
-    "NFTs / Art",
-    "Hardware",
-    "DeFi / Yield",
     "Safety / Scams",
-    "Pulse Products",
+    "DeFi / Yield",
     "Pump.tires",
+    "NFTs / Art",
+    "Pulse Products",
+    "Education",
+]
+
+FEATURED = set(FEATURED_ORDER)
+
+# Tier C/D — More (live links; not promoted)
+MORE_ORDER = [
+    "Reach",
+    "Heartbeat",
+    "Collaboration",
+    "Incentives",
+    "Problems",
+    "Skills detail",
+    "Balance sheet",
+    "Referral",
+    "Content / Media",
     "Data",
-}
-
-
-def group_for(short: str) -> str:
-    if short in CORE_SHORTS:
-        return "core"
-    if short in SPECIALTY_SHORTS:
-        return "specialty"
-    return "more"
+    "Creators / Cam",
+    "Hardware",
+    "Pulse color",
+    "Open dump",
+]
 
 
 def main() -> None:
-    live = [
-        {
+    by_short: dict[str, dict] = {
+        "Unblock": {
             "name": "Unblock",
             "desc": DESC["Unblock"],
             "url": "https://docs.google.com/forms/d/e/1FAIpQLSdb80FeUK0y7hf57AStv90bM5dNjHxkuiiYbeG0Iv_KrzD_og/viewform",
-            "group": "core",
         }
-    ]
+    }
     for path in (SATS / "forms.json", SATS / "specialty-forms.json"):
         rows = json.loads(path.read_text(encoding="utf-8"))
         for row in rows:
             short = row["short"]
-            live.append(
-                {
-                    "name": short,
-                    "desc": DESC.get(short, short),
-                    "url": row["published"],
-                    "group": group_for(short),
-                }
-            )
+            by_short[short] = {
+                "name": short,
+                "desc": DESC.get(short, short),
+                "url": row["published"],
+            }
 
-    def tiles(group: str) -> str:
+    def tiles(names: list[str]) -> str:
         bits = []
-        for item in live:
-            if item["group"] != group:
+        for name in names:
+            item = by_short.get(name)
+            if not item:
                 continue
             bits.append(
                 f"""        <a class="tile" href="{html.escape(item['url'])}" rel="noopener">
@@ -99,6 +107,15 @@ def main() -> None:
             )
         return "\n".join(bits)
 
+    featured_html = tiles(FEATURED_ORDER)
+    more_names = [n for n in MORE_ORDER if n in by_short]
+    # any leftover live forms not listed
+    known = FEATURED | set(MORE_ORDER)
+    for short in sorted(by_short):
+        if short not in known:
+            more_names.append(short)
+    more_html = tiles(more_names)
+
     page = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -106,7 +123,7 @@ def main() -> None:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
   <title>Questionnaires · ihelpmaybe</title>
-  <meta name="description" content="Live PulseChain Network Google Forms.">
+  <meta name="description" content="Live PulseChain Network Google Forms — featured spine + lanes.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop stop-color='%23ff0000'/%3E%3Cstop offset='.5' stop-color='%238000ff'/%3E%3Cstop offset='1' stop-color='%2300eaff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='16' height='16' fill='url(%23g)'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="../styles.css">
 </head>
@@ -115,26 +132,21 @@ def main() -> None:
   <header class="hero">
     <p class="eyebrow"><a href="../" style="color:inherit;text-decoration:none">ihelpmaybe</a> · pulsechain network</p>
     <h1 class="brand">Questionnaires</h1>
-    <p class="lede">Live Google Forms. Click a tile to fill it out.</p>
+    <p class="lede">Featured doors first. Start with Demand or Talent unless you’re acutely stuck.</p>
   </header>
   <main>
-    <section class="block" aria-labelledby="core-h">
-      <h2 id="core-h" class="section-label">Core</h2>
+    <section class="block" aria-labelledby="feat-h">
+      <h2 id="feat-h" class="section-label">Featured</h2>
+      <p class="section-note">Spine + lane doors. Revealed preference beats wishlists.</p>
       <div class="grid">
-{tiles("core")}
-      </div>
-    </section>
-    <section class="block" aria-labelledby="spec-h">
-      <h2 id="spec-h" class="section-label">Specialty</h2>
-      <p class="section-note">Creators / Cam is 18+ business intake.</p>
-      <div class="grid">
-{tiles("specialty")}
+{featured_html}
       </div>
     </section>
     <section class="block" aria-labelledby="more-h">
-      <h2 id="more-h" class="section-label">More satellites</h2>
+      <h2 id="more-h" class="section-label">More</h2>
+      <p class="section-note">Live links kept so old shares don’t 404. Prefer Featured — these are merged or demoted.</p>
       <div class="grid">
-{tiles("more")}
+{more_html}
       </div>
     </section>
   </main>
@@ -147,7 +159,7 @@ def main() -> None:
 """
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "index.html").write_text(page, encoding="utf-8")
-    print(f"wrote live-forms index ({len(live)} forms)")
+    print(f"wrote featured={len(FEATURED_ORDER)} more={len(more_names)}")
 
 
 if __name__ == "__main__":
