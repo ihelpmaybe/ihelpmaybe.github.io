@@ -168,69 +168,118 @@ main,
 }
 
 .grid {
-  --hex: clamp(11.5rem, 17vw, 14.25rem);
-  --hex-gap-x: 0.55rem;
-  --hex-gap-y: 0.35rem;
+  /* Pointy-top hex honeycomb: row pitch ¾H, odd rows +½W */
+  --hex: clamp(13.25rem, 16vw, 15.5rem);
+  --hex-h: calc(var(--hex) * 1.1547);
+  --nest-y: calc(var(--hex-h) * -0.25);
+  --shift: calc(var(--hex) * 0.5);
+  --hex-gap: 0.35rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--hex-gap-y) var(--hex-gap-x);
-  padding: 0.35rem 0 1.25rem;
+  align-content: start;
+  column-gap: var(--hex-gap);
+  row-gap: 0;
+  width: 100%;
+  max-width: calc(var(--hex) * 4.5 + var(--hex-gap) * 3 + 0.5rem);
+  margin-inline: auto;
+  padding: calc(var(--hex-h) * 0.22) calc(var(--shift) * 0.55) calc(var(--hex-h) * 0.32);
   animation: rise 0.55s ease-out 0.08s both;
 }
 
+.grid.cluster {
+  max-width: calc(var(--hex) * 4.5 + var(--hex-gap) * 3 + 0.5rem);
+}
+
 .grid-stuck {
-  max-width: 28rem;
+  max-width: calc(var(--hex) * 2 + var(--hex-gap) + 0.5rem);
   margin-inline: auto;
 }
 
 .tile {
   --hex-clip: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.28rem;
   flex: 0 0 var(--hex);
   width: var(--hex);
-  aspect-ratio: 1 / 1.12;
-  padding: 1.55rem 1.05rem 1.2rem;
+  height: var(--hex-h);
+  margin: var(--nest-y) 0 0;
+  padding: calc(var(--hex-h) * 0.2) calc(var(--hex) * 0.14) calc(var(--hex-h) * 0.18);
   background:
-    radial-gradient(circle at 50% 12%, rgba(128, 0, 255, 0.22), transparent 48%),
-    var(--bg);
+    radial-gradient(circle at 50% 18%, rgba(128, 0, 255, 0.28), transparent 52%),
+    linear-gradient(165deg, #16102a 0%, #0a0614 55%, #07040f 100%);
   border: 0;
   color: inherit;
   text-decoration: none;
   clip-path: var(--hex-clip);
   -webkit-clip-path: var(--hex-clip);
   filter:
-    drop-shadow(0 0 0.5px color-mix(in srgb, var(--pls-violet) 80%, #fff))
-    drop-shadow(0 0 10px rgba(128, 0, 255, 0.28));
+    drop-shadow(0 0 1px rgba(180, 120, 255, 0.95))
+    drop-shadow(0 0 14px rgba(128, 0, 255, 0.4));
   transition:
     filter 0.15s ease,
     transform 0.15s ease,
     background 0.15s ease;
 }
 
-/* Honeycomb stagger — even rows shift half a cell on wide desks */
-@media (min-width: 720px) {
+/* 2-col honeycomb (phones) */
+@media (max-width: 639px) {
   .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(var(--hex), 1fr));
-    justify-items: center;
-    column-gap: var(--hex-gap-x);
-    row-gap: calc(var(--hex) * -0.08);
+    max-width: calc(var(--hex) * 2 + var(--hex-gap) + 0.5rem);
   }
 
-  .grid > .tile,
-  .grid > a.tile {
-    margin-bottom: calc(var(--hex) * 0.12);
+  .grid > .tile:nth-child(4n + 3),
+  .grid > .tile:nth-child(4n + 4),
+  .grid > a.tile:nth-child(4n + 3),
+  .grid > a.tile:nth-child(4n + 4) {
+    transform: translateX(calc(var(--shift) + var(--hex-gap) * 0.5));
+  }
+
+  .grid > .tile:nth-child(4n + 3):hover,
+  .grid > .tile:nth-child(4n + 4):hover,
+  .grid > a.tile:nth-child(4n + 3):hover,
+  .grid > a.tile:nth-child(4n + 4):hover,
+  .grid > .tile:nth-child(4n + 3):has(:is(.tile-main, .tile-links a):hover),
+  .grid > .tile:nth-child(4n + 4):has(:is(.tile-main, .tile-links a):hover) {
+    transform: translateX(calc(var(--shift) + var(--hex-gap) * 0.5)) translateY(-4px) scale(1.03);
+    z-index: 3;
   }
 }
 
-@media (min-width: 980px) {
+/* 3-col honeycomb */
+@media (min-width: 640px) and (max-width: 979px) {
   .grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-width: calc(var(--hex) * 3 + var(--hex-gap) * 2 + 0.5rem);
   }
 
+  .grid > .tile:nth-child(6n + 4),
+  .grid > .tile:nth-child(6n + 5),
+  .grid > .tile:nth-child(6n + 6),
+  .grid > a.tile:nth-child(6n + 4),
+  .grid > a.tile:nth-child(6n + 5),
+  .grid > a.tile:nth-child(6n + 6) {
+    transform: translateX(calc(var(--shift) + var(--hex-gap) * 0.5));
+  }
+
+  .grid > .tile:nth-child(6n + 4):hover,
+  .grid > .tile:nth-child(6n + 5):hover,
+  .grid > .tile:nth-child(6n + 6):hover,
+  .grid > a.tile:nth-child(6n + 4):hover,
+  .grid > a.tile:nth-child(6n + 5):hover,
+  .grid > a.tile:nth-child(6n + 6):hover,
+  .grid > .tile:nth-child(6n + 4):has(:is(.tile-main, .tile-links a):hover),
+  .grid > .tile:nth-child(6n + 5):has(:is(.tile-main, .tile-links a):hover),
+  .grid > .tile:nth-child(6n + 6):has(:is(.tile-main, .tile-links a):hover) {
+    transform: translateX(calc(var(--shift) + var(--hex-gap) * 0.5)) translateY(-4px) scale(1.03);
+    z-index: 3;
+  }
+}
+
+/* 4-col honeycomb */
+@media (min-width: 980px) {
   .grid > .tile:nth-child(8n + 5),
   .grid > .tile:nth-child(8n + 6),
   .grid > .tile:nth-child(8n + 7),
@@ -239,7 +288,7 @@ main,
   .grid > a.tile:nth-child(8n + 6),
   .grid > a.tile:nth-child(8n + 7),
   .grid > a.tile:nth-child(8n + 8) {
-    transform: translateX(calc(50% + var(--hex-gap-x) / 2));
+    transform: translateX(calc(var(--shift) + var(--hex-gap) * 0.5));
   }
 
   .grid > .tile:nth-child(8n + 5):hover,
@@ -250,59 +299,12 @@ main,
   .grid > a.tile:nth-child(8n + 6):hover,
   .grid > a.tile:nth-child(8n + 7):hover,
   .grid > a.tile:nth-child(8n + 8):hover,
-  .grid > .tile:nth-child(8n + 5):has(.tile-main:hover),
-  .grid > .tile:nth-child(8n + 6):has(.tile-main:hover),
-  .grid > .tile:nth-child(8n + 7):has(.tile-main:hover),
-  .grid > .tile:nth-child(8n + 8):has(.tile-main:hover) {
-    transform: translateX(calc(50% + var(--hex-gap-x) / 2)) translateY(-3px) scale(1.02);
-  }
-}
-
-@media (min-width: 1280px) {
-  .grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-
-  .grid > .tile:nth-child(8n + 5),
-  .grid > .tile:nth-child(8n + 6),
-  .grid > .tile:nth-child(8n + 7),
-  .grid > .tile:nth-child(8n + 8),
-  .grid > a.tile:nth-child(8n + 5),
-  .grid > a.tile:nth-child(8n + 6),
-  .grid > a.tile:nth-child(8n + 7),
-  .grid > a.tile:nth-child(8n + 8) {
-    transform: none;
-  }
-
-  .grid > .tile:nth-child(10n + 6),
-  .grid > .tile:nth-child(10n + 7),
-  .grid > .tile:nth-child(10n + 8),
-  .grid > .tile:nth-child(10n + 9),
-  .grid > .tile:nth-child(10n + 10),
-  .grid > a.tile:nth-child(10n + 6),
-  .grid > a.tile:nth-child(10n + 7),
-  .grid > a.tile:nth-child(10n + 8),
-  .grid > a.tile:nth-child(10n + 9),
-  .grid > a.tile:nth-child(10n + 10) {
-    transform: translateX(calc(50% + var(--hex-gap-x) / 2));
-  }
-
-  .grid > .tile:nth-child(10n + 6):hover,
-  .grid > .tile:nth-child(10n + 7):hover,
-  .grid > .tile:nth-child(10n + 8):hover,
-  .grid > .tile:nth-child(10n + 9):hover,
-  .grid > .tile:nth-child(10n + 10):hover,
-  .grid > a.tile:nth-child(10n + 6):hover,
-  .grid > a.tile:nth-child(10n + 7):hover,
-  .grid > a.tile:nth-child(10n + 8):hover,
-  .grid > a.tile:nth-child(10n + 9):hover,
-  .grid > a.tile:nth-child(10n + 10):hover,
-  .grid > .tile:nth-child(10n + 6):has(.tile-main:hover),
-  .grid > .tile:nth-child(10n + 7):has(.tile-main:hover),
-  .grid > .tile:nth-child(10n + 8):has(.tile-main:hover),
-  .grid > .tile:nth-child(10n + 9):has(.tile-main:hover),
-  .grid > .tile:nth-child(10n + 10):has(.tile-main:hover) {
-    transform: translateX(calc(50% + var(--hex-gap-x) / 2)) translateY(-3px) scale(1.02);
+  .grid > .tile:nth-child(8n + 5):has(:is(.tile-main, .tile-links a):hover),
+  .grid > .tile:nth-child(8n + 6):has(:is(.tile-main, .tile-links a):hover),
+  .grid > .tile:nth-child(8n + 7):has(:is(.tile-main, .tile-links a):hover),
+  .grid > .tile:nth-child(8n + 8):has(:is(.tile-main, .tile-links a):hover) {
+    transform: translateX(calc(var(--shift) + var(--hex-gap) * 0.5)) translateY(-4px) scale(1.03);
+    z-index: 3;
   }
 }
 
@@ -317,12 +319,12 @@ main,
 }
 
 .tile-links {
-  margin: 0.35rem 0 0;
-  padding-top: 0.45rem;
+  margin: 0.2rem 0 0;
+  padding-top: 0.35rem;
   border-top: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.4rem;
+  grid-template-columns: 1fr;
+  gap: 0.28rem;
 }
 
 .tile-links a {
@@ -330,8 +332,8 @@ main,
   align-items: center;
   justify-content: center;
   gap: 0.28rem;
-  min-height: 1.9rem;
-  padding: 0.3rem 0.4rem;
+  min-height: 1.55rem;
+  padding: 0.22rem 0.45rem;
   border-radius: 999px;
   border: 1px solid transparent;
   font-family: var(--mono);
@@ -432,14 +434,14 @@ main,
 .tile-head {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.4rem;
   min-width: 0;
 }
 
 .tile-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
   flex-shrink: 0;
   object-fit: cover;
   background: #0a0614;
@@ -454,13 +456,13 @@ a.tile:focus-visible,
 .tile:has(.tile-links a:focus-visible) {
   outline: none;
   background:
-    radial-gradient(circle at 50% 18%, rgba(0, 234, 255, 0.2), transparent 50%),
-    var(--bg-2);
+    radial-gradient(circle at 50% 18%, rgba(0, 234, 255, 0.24), transparent 52%),
+    linear-gradient(165deg, #1c1434 0%, #100a1c 60%, #0a0614 100%);
   filter:
-    drop-shadow(0 0 1px var(--pls-cyan))
-    drop-shadow(0 0 16px rgba(0, 234, 255, 0.28));
-  transform: translateY(-3px) scale(1.02);
-  z-index: 2;
+    drop-shadow(0 0 1.5px var(--pls-cyan))
+    drop-shadow(0 0 18px rgba(0, 234, 255, 0.35));
+  transform: translateY(-4px) scale(1.03);
+  z-index: 3;
 }
 
 .tile--pulse {
@@ -477,7 +479,7 @@ a.tile:focus-visible,
 }
 
 .tile-name {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.15;
@@ -486,14 +488,14 @@ a.tile:focus-visible,
 
 .tile-desc {
   flex: 1;
-  font-size: 0.78rem;
-  line-height: 1.35;
+  font-size: 0.72rem;
+  line-height: 1.3;
   color: var(--text-2);
   overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
 .tile-url {
