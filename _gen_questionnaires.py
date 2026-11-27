@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Generate /questionnaires/ index — ranked do-first order."""
+"""Generate /questionnaires/ index — ranked do-first order.
+
+Personal Twitter-unblock Form lives on the hub Now strip only — never here.
+"""
 from __future__ import annotations
 
 import html
@@ -11,7 +14,6 @@ SATS = ROOT.parent / "surveys" / "builder-network" / "satellites"
 OUT = ROOT / "questionnaires"
 
 DESC = {
-    "Unblock": "Acutely stuck — jump here before anything else",
     "Reach": "Cohort / contact (feeds Demand — unfeatured)",
     "Demand": "Spine — pay · ONE tool · revealed want",
     "Talent": "Proof · hours · deal shapes · intro filters",
@@ -38,7 +40,7 @@ DESC = {
     "Data": "Last open · ONE gap · pay for the view",
 }
 
-# Numbered do-first path (Unblock is interrupt, not in this list)
+# Numbered do-first path (no personal Twitter-unblock · no Network Unblock)
 RANKED_ORDER = [
     "Demand",
     "Talent",
@@ -69,19 +71,18 @@ MORE_ORDER = [
     "Open dump",
 ]
 
+# Never list these on /questionnaires/
+EXCLUDE = {"Unblock"}
+
 
 def main() -> None:
-    by_short: dict[str, dict] = {
-        "Unblock": {
-            "name": "Unblock",
-            "desc": DESC["Unblock"],
-            "url": "https://docs.google.com/forms/d/e/1FAIpQLScKQrCYXa-xvdrAy-peRWNbLbNRr33jBTqN8xzbs7KdSUF3Nw/viewform",
-        }
-    }
+    by_short: dict[str, dict] = {}
     for path in (SATS / "forms.json", SATS / "specialty-forms.json"):
         rows = json.loads(path.read_text(encoding="utf-8"))
         for row in rows:
             short = row["short"]
+            if short in EXCLUDE:
+                continue
             by_short[short] = {
                 "name": short,
                 "desc": DESC.get(short, short),
@@ -106,13 +107,10 @@ def main() -> None:
         ranked_bits.append(tile(item, f"{i}"))
     ranked_html = "\n".join(ranked_bits)
 
-    unblock = by_short.get("Unblock")
-    stuck_html = tile(unblock, "!") if unblock else ""
-
     more_names = [n for n in MORE_ORDER if n in by_short]
-    known = set(RANKED_ORDER) | set(MORE_ORDER) | {"Unblock"}
+    known = set(RANKED_ORDER) | set(MORE_ORDER)
     for short in sorted(by_short):
-        if short not in known:
+        if short not in known and short not in EXCLUDE:
             more_names.append(short)
     more_html = "\n".join(tile(by_short[n]) for n in more_names if n in by_short)
 
@@ -123,7 +121,7 @@ def main() -> None:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
   <title>Questionnaires · ihelpmaybe</title>
-  <meta name="description" content="Ranked PulseChain Network Google Forms — start at 1, jump to Unblock if stuck.">
+  <meta name="description" content="Ranked PulseChain Network Google Forms — start at 1 Demand, then 2 Talent.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop stop-color='%23ff0000'/%3E%3Cstop offset='.5' stop-color='%238000ff'/%3E%3Cstop offset='1' stop-color='%2300eaff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='16' height='16' fill='url(%23g)'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="../styles.css">
 </head>
@@ -132,16 +130,9 @@ def main() -> None:
   <header class="hero">
     <p class="eyebrow"><a href="../" style="color:inherit;text-decoration:none">ihelpmaybe</a> · pulsechain network</p>
     <h1 class="brand">Questionnaires</h1>
-    <p class="lede">Do them in order. <strong>1 → 2</strong> first. If you’re acutely stuck, hit <strong>Unblock</strong>. One form beats none.</p>
+    <p class="lede">Do them in order. <strong>1 Demand → 2 Talent</strong> first. One form beats none.</p>
   </header>
   <main>
-    <section class="block" aria-labelledby="stuck-h">
-      <h2 id="stuck-h" class="section-label">If stuck</h2>
-      <p class="section-note">Skip the queue — only when something is blocking you right now.</p>
-      <div class="grid grid-stuck">
-{stuck_html}
-      </div>
-    </section>
     <section class="block" aria-labelledby="rank-h">
       <h2 id="rank-h" class="section-label">Do in order</h2>
       <p class="section-note">1 Demand · 2 Talent · then Projects → Content → Education → Onboarding → lane doors. Stop when you’ve said the useful part.</p>
@@ -151,7 +142,7 @@ def main() -> None:
     </section>
     <section class="block" aria-labelledby="more-h">
       <h2 id="more-h" class="section-label">Optional</h2>
-      <p class="section-note">Only if that lane is you. After 1–2 (or Unblock).</p>
+      <p class="section-note">Only if that lane is you — after 1–2.</p>
       <div class="grid">
 {more_html}
       </div>
