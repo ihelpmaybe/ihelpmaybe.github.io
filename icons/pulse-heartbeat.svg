@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Pulse Heartbeat">
+  <rect width="128" height="128" rx="28" fill="#070708"/>
+  <path fill="none" stroke="#ff3b30" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"
+    d="M18 68 H38 L50 36 L64 96 L76 52 L86 68 H110"/>
+  <circle cx="110" cy="68" r="6" fill="#3ecf8e"/>
+</svg>
