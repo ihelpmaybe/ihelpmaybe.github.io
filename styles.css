@@ -168,41 +168,38 @@ main,
 }
 
 .grid {
-  /* Pointy-top hex honeycomb: row pitch ¾H, odd rows +½W */
-  --hex: clamp(13.5rem, 15vw, 15.75rem);
+  /* Pointy-top hex honeycomb: half-columns, odd rows start at col 2 */
+  --hex: clamp(12.75rem, 14vw, 15rem);
   --hex-h: calc(var(--hex) * 1.1547);
-  --nest-y: 0.65rem; /* 1-col: stack with gap; multi-col overrides to negative */
-  --shift: calc(var(--hex) * 0.5);
-  --hex-gap: 0.2rem;
-  display: flex;
-  flex-wrap: wrap;
+  --half: calc(var(--hex) / 2);
+  --row: calc(var(--hex-h) + 0.65rem); /* 1-col: full height + gap */
+  --cols: 2;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--half));
+  grid-auto-rows: var(--row);
   justify-content: center;
-  align-content: start;
-  column-gap: var(--hex-gap);
-  row-gap: 0;
-  width: 100%;
-  max-width: calc(var(--hex) + 1rem);
+  width: max-content;
+  max-width: 100%;
   margin-inline: auto;
-  padding: 0.35rem 0 0.75rem;
+  padding: 0.5rem 0 calc(var(--hex-h) * 0.3);
   animation: rise 0.55s ease-out 0.08s both;
 }
 
 .grid-stuck {
-  max-width: calc(var(--hex) + 1rem);
-  margin-inline: auto;
+  --cols: 2;
 }
 
 .tile {
   --hex-clip: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   position: relative;
   z-index: 1;
+  grid-column: span 2;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  flex: 0 0 var(--hex);
   width: var(--hex);
   height: var(--hex-h);
-  margin: var(--nest-y) 0 0;
+  margin: 0;
   /* Keep copy inside the flat band (avoid pointy tapers) */
   padding: calc(var(--hex-h) * 0.26) calc(var(--hex) * 0.18) calc(var(--hex-h) * 0.28);
   background:
@@ -222,129 +219,50 @@ main,
     background 0.15s ease;
 }
 
-/* 2-col honeycomb */
+/* 2 hex / row — need 5 half-cols so odd row can offset */
 @media (min-width: 36rem) {
   .grid {
-    --nest-y: calc(var(--hex-h) * -0.25);
-    max-width: calc(var(--hex) * 2.5 + var(--hex-gap) + 0.5rem);
-    padding: calc(var(--hex-h) * 0.28) calc(var(--shift) * 0.55) calc(var(--hex-h) * 0.3);
+    --cols: 5;
+    --row: calc(var(--hex-h) * 0.75);
   }
 
   .grid > .tile:nth-child(4n + 3),
-  .grid > .tile:nth-child(4n + 4),
-  .grid > a.tile:nth-child(4n + 3),
-  .grid > a.tile:nth-child(4n + 4) {
-    transform: translateX(calc(var(--shift) + var(--hex-gap) * 0.5));
-  }
-
-  .grid > .tile:nth-child(4n + 3):hover,
-  .grid > .tile:nth-child(4n + 4):hover,
-  .grid > a.tile:nth-child(4n + 3):hover,
-  .grid > a.tile:nth-child(4n + 4):hover,
-  .grid > .tile:nth-child(4n + 3):has(:is(.tile-main, .tile-links a):hover),
-  .grid > .tile:nth-child(4n + 4):has(:is(.tile-main, .tile-links a):hover) {
-    transform: translateX(calc(var(--shift) + var(--hex-gap) * 0.5)) translateY(-4px) scale(1.03);
-    z-index: 3;
+  .grid > a.tile:nth-child(4n + 3) {
+    grid-column: 2 / span 2;
   }
 }
 
-/* 3-col honeycomb */
-@media (min-width: 48rem) {
+/* 3 hex / row — 7 half-cols */
+@media (min-width: 52rem) {
   .grid {
-    max-width: calc(var(--hex) * 3.5 + var(--hex-gap) * 2 + 0.5rem);
+    --cols: 7;
   }
 
   .grid > .tile:nth-child(4n + 3),
-  .grid > .tile:nth-child(4n + 4),
-  .grid > a.tile:nth-child(4n + 3),
-  .grid > a.tile:nth-child(4n + 4) {
-    transform: none;
-  }
-
-  .grid > .tile:nth-child(4n + 3):hover,
-  .grid > .tile:nth-child(4n + 4):hover,
-  .grid > a.tile:nth-child(4n + 3):hover,
-  .grid > a.tile:nth-child(4n + 4):hover,
-  .grid > .tile:nth-child(4n + 3):has(:is(.tile-main, .tile-links a):hover),
-  .grid > .tile:nth-child(4n + 4):has(:is(.tile-main, .tile-links a):hover) {
-    transform: translateY(-4px) scale(1.03);
+  .grid > a.tile:nth-child(4n + 3) {
+    grid-column: span 2;
   }
 
   .grid > .tile:nth-child(6n + 4),
-  .grid > .tile:nth-child(6n + 5),
-  .grid > .tile:nth-child(6n + 6),
-  .grid > a.tile:nth-child(6n + 4),
-  .grid > a.tile:nth-child(6n + 5),
-  .grid > a.tile:nth-child(6n + 6) {
-    transform: translateX(calc(var(--shift) + var(--hex-gap) * 0.5));
-  }
-
-  .grid > .tile:nth-child(6n + 4):hover,
-  .grid > .tile:nth-child(6n + 5):hover,
-  .grid > .tile:nth-child(6n + 6):hover,
-  .grid > a.tile:nth-child(6n + 4):hover,
-  .grid > a.tile:nth-child(6n + 5):hover,
-  .grid > a.tile:nth-child(6n + 6):hover,
-  .grid > .tile:nth-child(6n + 4):has(:is(.tile-main, .tile-links a):hover),
-  .grid > .tile:nth-child(6n + 5):has(:is(.tile-main, .tile-links a):hover),
-  .grid > .tile:nth-child(6n + 6):has(:is(.tile-main, .tile-links a):hover) {
-    transform: translateX(calc(var(--shift) + var(--hex-gap) * 0.5)) translateY(-4px) scale(1.03);
-    z-index: 3;
+  .grid > a.tile:nth-child(6n + 4) {
+    grid-column: 2 / span 2;
   }
 }
 
-/* 4-col honeycomb */
-@media (min-width: 64rem) {
+/* 4 hex / row — 9 half-cols */
+@media (min-width: 68rem) {
   .grid {
-    max-width: calc(var(--hex) * 4.5 + var(--hex-gap) * 3 + 0.5rem);
+    --cols: 9;
   }
 
   .grid > .tile:nth-child(6n + 4),
-  .grid > .tile:nth-child(6n + 5),
-  .grid > .tile:nth-child(6n + 6),
-  .grid > a.tile:nth-child(6n + 4),
-  .grid > a.tile:nth-child(6n + 5),
-  .grid > a.tile:nth-child(6n + 6) {
-    transform: none;
-  }
-
-  .grid > .tile:nth-child(6n + 4):hover,
-  .grid > .tile:nth-child(6n + 5):hover,
-  .grid > .tile:nth-child(6n + 6):hover,
-  .grid > a.tile:nth-child(6n + 4):hover,
-  .grid > a.tile:nth-child(6n + 5):hover,
-  .grid > a.tile:nth-child(6n + 6):hover,
-  .grid > .tile:nth-child(6n + 4):has(:is(.tile-main, .tile-links a):hover),
-  .grid > .tile:nth-child(6n + 5):has(:is(.tile-main, .tile-links a):hover),
-  .grid > .tile:nth-child(6n + 6):has(:is(.tile-main, .tile-links a):hover) {
-    transform: translateY(-4px) scale(1.03);
+  .grid > a.tile:nth-child(6n + 4) {
+    grid-column: span 2;
   }
 
   .grid > .tile:nth-child(8n + 5),
-  .grid > .tile:nth-child(8n + 6),
-  .grid > .tile:nth-child(8n + 7),
-  .grid > .tile:nth-child(8n + 8),
-  .grid > a.tile:nth-child(8n + 5),
-  .grid > a.tile:nth-child(8n + 6),
-  .grid > a.tile:nth-child(8n + 7),
-  .grid > a.tile:nth-child(8n + 8) {
-    transform: translateX(calc(var(--shift) + var(--hex-gap) * 0.5));
-  }
-
-  .grid > .tile:nth-child(8n + 5):hover,
-  .grid > .tile:nth-child(8n + 6):hover,
-  .grid > .tile:nth-child(8n + 7):hover,
-  .grid > .tile:nth-child(8n + 8):hover,
-  .grid > a.tile:nth-child(8n + 5):hover,
-  .grid > a.tile:nth-child(8n + 6):hover,
-  .grid > a.tile:nth-child(8n + 7):hover,
-  .grid > a.tile:nth-child(8n + 8):hover,
-  .grid > .tile:nth-child(8n + 5):has(:is(.tile-main, .tile-links a):hover),
-  .grid > .tile:nth-child(8n + 6):has(:is(.tile-main, .tile-links a):hover),
-  .grid > .tile:nth-child(8n + 7):has(:is(.tile-main, .tile-links a):hover),
-  .grid > .tile:nth-child(8n + 8):has(:is(.tile-main, .tile-links a):hover) {
-    transform: translateX(calc(var(--shift) + var(--hex-gap) * 0.5)) translateY(-4px) scale(1.03);
-    z-index: 3;
+  .grid > a.tile:nth-child(8n + 5) {
+    grid-column: 2 / span 2;
   }
 }
 
@@ -549,9 +467,13 @@ a.tile:focus-visible,
 }
 
 .tile-url {
+  margin-top: auto;
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .foot {
