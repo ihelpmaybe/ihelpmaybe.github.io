@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Generate /questionnaires/ index — Tier A+B featured; Tier C under More."""
+"""Generate /questionnaires/ index — ranked do-first order."""
 from __future__ import annotations
 
 import html
@@ -11,7 +11,7 @@ SATS = ROOT.parent / "surveys" / "builder-network" / "satellites"
 OUT = ROOT / "questionnaires"
 
 DESC = {
-    "Unblock": "Acute stuck — route help now",
+    "Unblock": "Acutely stuck — jump here before anything else",
     "Reach": "Cohort / contact (feeds Demand — unfeatured)",
     "Demand": "Spine — pay · ONE tool · revealed want",
     "Talent": "Proof · hours · deal shapes · intro filters",
@@ -38,11 +38,10 @@ DESC = {
     "Data": "Last open · ONE gap · pay for the view",
 }
 
-# Tier A + B featured (+ Content film door)
-FEATURED_ORDER = [
+# Numbered do-first path (Unblock is interrupt, not in this list)
+RANKED_ORDER = [
     "Demand",
     "Talent",
-    "Unblock",
     "Projects",
     "Content / Media",
     "Education",
@@ -54,10 +53,10 @@ FEATURED_ORDER = [
     "NFTs / Art",
 ]
 
-FEATURED = set(FEATURED_ORDER)
-
-# Tier C/D — More (live links; not promoted)
 MORE_ORDER = [
+    "Referral",
+    "Data",
+    "Creators / Cam",
     "Reach",
     "Heartbeat",
     "Collaboration",
@@ -65,9 +64,6 @@ MORE_ORDER = [
     "Problems",
     "Skills detail",
     "Balance sheet",
-    "Referral",
-    "Data",
-    "Creators / Cam",
     "Hardware",
     "Pulse color",
     "Open dump",
@@ -92,29 +88,33 @@ def main() -> None:
                 "url": row["published"],
             }
 
-    def tiles(names: list[str]) -> str:
-        bits = []
-        for name in names:
-            item = by_short.get(name)
-            if not item:
-                continue
-            bits.append(
-                f"""        <a class="tile" href="{html.escape(item['url'])}" rel="noopener">
+    def tile(item: dict, rank: str | None = None) -> str:
+        rank_html = (
+            f'\n          <span class="tile-rank">{html.escape(rank)}</span>' if rank else ""
+        )
+        return f"""        <a class="tile" href="{html.escape(item['url'])}" rel="noopener">{rank_html}
           <span class="tile-name">{html.escape(item['name'])}</span>
           <span class="tile-desc">{html.escape(item['desc'])}</span>
           <span class="tile-url">Google Form</span>
         </a>"""
-            )
-        return "\n".join(bits)
 
-    featured_html = tiles(FEATURED_ORDER)
+    ranked_bits = []
+    for i, name in enumerate(RANKED_ORDER, start=1):
+        item = by_short.get(name)
+        if not item:
+            continue
+        ranked_bits.append(tile(item, f"{i}"))
+    ranked_html = "\n".join(ranked_bits)
+
+    unblock = by_short.get("Unblock")
+    stuck_html = tile(unblock, "!") if unblock else ""
+
     more_names = [n for n in MORE_ORDER if n in by_short]
-    # any leftover live forms not listed
-    known = FEATURED | set(MORE_ORDER)
+    known = set(RANKED_ORDER) | set(MORE_ORDER) | {"Unblock"}
     for short in sorted(by_short):
         if short not in known:
             more_names.append(short)
-    more_html = tiles(more_names)
+    more_html = "\n".join(tile(by_short[n]) for n in more_names if n in by_short)
 
     page = f"""<!DOCTYPE html>
 <html lang="en">
@@ -123,7 +123,7 @@ def main() -> None:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
   <title>Questionnaires · ihelpmaybe</title>
-  <meta name="description" content="Live PulseChain Network Google Forms — featured spine + lanes.">
+  <meta name="description" content="Ranked PulseChain Network Google Forms — start at 1, jump to Unblock if stuck.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop stop-color='%23ff0000'/%3E%3Cstop offset='.5' stop-color='%238000ff'/%3E%3Cstop offset='1' stop-color='%2300eaff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='16' height='16' fill='url(%23g)'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="../styles.css">
 </head>
@@ -132,19 +132,26 @@ def main() -> None:
   <header class="hero">
     <p class="eyebrow"><a href="../" style="color:inherit;text-decoration:none">ihelpmaybe</a> · pulsechain network</p>
     <h1 class="brand">Questionnaires</h1>
-    <p class="lede">Featured doors first. Start with Demand or Talent unless you’re acutely stuck.</p>
+    <p class="lede">Do them in order. <strong>1 → 2</strong> first. If you’re acutely stuck, hit <strong>Unblock</strong>. One form beats none.</p>
   </header>
   <main>
-    <section class="block" aria-labelledby="feat-h">
-      <h2 id="feat-h" class="section-label">Featured</h2>
-      <p class="section-note">Spine + lane doors. Revealed preference beats wishlists.</p>
+    <section class="block" aria-labelledby="stuck-h">
+      <h2 id="stuck-h" class="section-label">If stuck</h2>
+      <p class="section-note">Skip the queue — only when something is blocking you right now.</p>
+      <div class="grid grid-stuck">
+{stuck_html}
+      </div>
+    </section>
+    <section class="block" aria-labelledby="rank-h">
+      <h2 id="rank-h" class="section-label">Do in order</h2>
+      <p class="section-note">1 Demand · 2 Talent · then Projects → Content → Education → Onboarding → lane doors. Stop when you’ve said the useful part.</p>
       <div class="grid">
-{featured_html}
+{ranked_html}
       </div>
     </section>
     <section class="block" aria-labelledby="more-h">
-      <h2 id="more-h" class="section-label">More</h2>
-      <p class="section-note">Live links kept so old shares don’t 404. Prefer Featured — these are merged or demoted.</p>
+      <h2 id="more-h" class="section-label">Optional</h2>
+      <p class="section-note">Only if that lane is you. After 1–2 (or Unblock).</p>
       <div class="grid">
 {more_html}
       </div>
@@ -159,7 +166,7 @@ def main() -> None:
 """
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "index.html").write_text(page, encoding="utf-8")
-    print(f"wrote featured={len(FEATURED_ORDER)} more={len(more_names)}")
+    print(f"wrote ranked={len(ranked_bits)} more={len(more_names)}")
 
 
 if __name__ == "__main__":
