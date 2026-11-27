@@ -1,5 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Pulse Portfolio">
-  <rect width="128" height="128" rx="28" fill="#07060c"/>
   <rect x="22" y="34" width="84" height="12" rx="4" fill="#00eaff" opacity="0.95"/>
   <rect x="22" y="58" width="58" height="12" rx="4" fill="#8000ff"/>
   <rect x="22" y="82" width="72" height="12" rx="4" fill="#e619e6" opacity="0.9"/>

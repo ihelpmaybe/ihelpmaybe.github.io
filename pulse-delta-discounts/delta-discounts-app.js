@@ -1,6 +1,6 @@
 (() => {
-  const RPC = "https://rpc.pulsechain.com";
-  const PHEX = "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39";
+  const HEX = "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39";
+  const PHEX = HEX;
   const EHEX = "0x57fde0a71132198BBeC939B98976993d8D89D225";
   const WPLS = "0xA1077a294dDE1B09bB078844df40758a5D0f9a27";
   const PLSX = "0x95B303987A60C71504D99Aa1b13B4DA07b0790ab";
@@ -14,14 +14,44 @@
   const HEART_BITS = 72n;
   const HEART_MASK = (1n << HEART_BITS) - 1n;
   const CHUNK = 400;
+  const CHAIN_KEY = "delta-maxi-chain-v1";
+
+  const CHAINS = {
+    pulse: {
+      id: "pulse",
+      label: "Pulse",
+      rpc: "https://rpc.pulsechain.com",
+      dex: "pulsechain",
+      gecko: "pulsechain",
+      prefix: "p",
+    },
+    eth: {
+      id: "eth",
+      label: "Ethereum",
+      rpc: "https://ethereum.publicnode.com",
+      dex: "ethereum",
+      gecko: "eth",
+      prefix: "e",
+    },
+  };
+
+  let chain = CHAINS.pulse;
+  try {
+    const saved = localStorage.getItem(CHAIN_KEY);
+    if (saved && CHAINS[saved]) chain = CHAINS[saved];
+  } catch (_) {}
 
   const POOLS = [
-    { id: "pMAXI", tag: "15y", address: "0x0d86EB9f43C57f6FF3BC9E23D8F9d82503f0e84b", mintHex: 1 },
-    { id: "pDECI", tag: "10y", address: "0x6b32022693210cD2Cfc466b9Ac0085DE8fC34eA6", mintHex: 1 },
-    { id: "pLUCKY", tag: "7y", address: "0x6B0956258fF7bd7645aa35369B55B61b8e6d6140", mintHex: 1 },
-    { id: "pTRIO", tag: "3y", address: "0xF55cD1e399e1cc3D95303048897a680be3313308", mintHex: 1 },
-    { id: "pBASE", tag: "1y", address: "0xe9f84d418B008888A992Ff8c6D22389C2C3504e0", mintHex: 1 },
+    { sym: "MAXI", tag: "15y", address: "0x0d86EB9f43C57f6FF3BC9E23D8F9d82503f0e84b", mintHex: 1 },
+    { sym: "DECI", tag: "10y", address: "0x6b32022693210cD2Cfc466b9Ac0085DE8fC34eA6", mintHex: 1 },
+    { sym: "LUCKY", tag: "7y", address: "0x6B0956258fF7bd7645aa35369B55B61b8e6d6140", mintHex: 1 },
+    { sym: "TRIO", tag: "3y", address: "0xF55cD1e399e1cc3D95303048897a680be3313308", mintHex: 1 },
+    { sym: "BASE", tag: "1y", address: "0xe9f84d418B008888A992Ff8c6D22389C2C3504e0", mintHex: 1 },
   ];
+
+  function poolId(p) {
+    return chain.prefix + p.sym;
+  }
 
   /** Majors: kind = spot | parity (vs pHEX) | peg (vs $1) */
   const MAJORS = [
@@ -70,8 +100,10 @@
   let rpcId = 1;
   /** @type {Map<number, {payout: bigint, shares: bigint}>} */
   let dayCache = new Map();
-  /** @type {Map<string, object>} best pair row by token lower */
-  let pairByToken = new Map();
+  /** @type {Map<string, object>} Maximus pairs on active chain */
+  let maxiPairs = new Map();
+  /** @type {Map<string, object>} Pulse majors / memes */
+  let pulsePairs = new Map();
 
   const $ = (id) => document.getElementById(id);
 
@@ -86,7 +118,7 @@
   }
 
   async function rpc(method, params) {
-    const res = await fetch(RPC, {
+    const res = await fetch(chain.rpc, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ jsonrpc: "2.0", id: rpcId++, method, params }),
@@ -142,16 +174,16 @@
   }
 
   async function getCurrentDay() {
-    return Number(decodeUint(await ethCall(PHEX, "0x" + SEL.currentDay)));
+    return Number(decodeUint(await ethCall(HEX, "0x" + SEL.currentDay)));
   }
 
   async function getStake(staker) {
-    const count = Number(decodeUint(await ethCall(PHEX, "0x" + SEL.stakeCount + encAddr(staker))));
+    const count = Number(decodeUint(await ethCall(HEX, "0x" + SEL.stakeCount + encAddr(staker))));
     if (!count) return null;
     let best = null;
     for (let i = 0; i < count; i++) {
       const st = decodeStakeTuple(
-        await ethCall(PHEX, "0x" + SEL.stakeLists + encAddr(staker) + encUint(i))
+        await ethCall(HEX, "0x" + SEL.stakeLists + encAddr(staker) + encUint(i))
       );
       st.index = i;
       if (st.unlockedDay === 0) return st;
@@ -175,7 +207,7 @@
       let e = b;
       while (e < endDay && e - b < CHUNK && !dayCache.has(e)) e++;
       const raw = await ethCall(
-        PHEX,
+        HEX,
         "0x" + SEL.dailyDataRange + encUint(b) + encUint(e)
       );
       const packed = decodeUintList(raw);
@@ -210,10 +242,11 @@
     return Number((num * scale) / den) / Number(scale);
   }
 
-  function pickBestPair(tokenAddr, pairs) {
+  function pickBestPair(tokenAddr, pairs, dexChain) {
     const t = tokenAddr.toLowerCase();
+    const want = dexChain || chain.dex;
     const scored = (pairs || [])
-      .filter((p) => p.chainId === "pulsechain")
+      .filter((p) => p.chainId === want)
       .map((p) => {
         const b = (p.baseToken?.address || "").toLowerCase();
         const q = (p.quoteToken?.address || "").toLowerCase();
@@ -221,7 +254,7 @@
         const liq = Number(p.liquidity?.usd || 0);
         const usd = Number(p.priceUsd || 0);
         let hexPer = null;
-        const h = PHEX.toLowerCase();
+        const h = HEX.toLowerCase();
         if (b === t && q === h) hexPer = Number(p.priceNative);
         else if (q === t && b === h) {
           const n = Number(p.priceNative);
@@ -236,6 +269,7 @@
           dexId: p.dexId || "",
           vol24: Number(p.volume?.h24 || 0),
           fdv: Number(p.fdv || p.marketCap || 0),
+          pairAddress: (p.pairAddress || "").toLowerCase(),
         };
       })
       .filter(Boolean)
@@ -243,7 +277,7 @@
     return scored[0] || null;
   }
 
-  async function loadDexChunk(chunk) {
+  async function loadDexChunk(chunk, dexChain, intoMap) {
     const url = "https://api.dexscreener.com/latest/dex/tokens/" + chunk.join(",");
     const res = await fetch(url, { headers: { accept: "application/json" } });
     if (!res.ok) throw new Error("DexScreener HTTP " + res.status);
@@ -255,30 +289,31 @@
         const q = (p.quoteToken?.address || "").toLowerCase();
         return b === addr || q === addr;
       });
-      const best = pickBestPair(addr, mine);
-      if (best) pairByToken.set(addr, best);
+      const best = pickBestPair(addr, mine, dexChain);
+      if (best) intoMap.set(addr, best);
     }
   }
 
-  async function loadDexBatch(addresses) {
+  async function loadDexBatch(addresses, dexChain, intoMap) {
     const uniq = [...new Set(addresses.map((a) => a.toLowerCase()))];
-    // Small chunks — big multi-token calls often drop Pulse pairs.
     for (let i = 0; i < uniq.length; i += 6) {
-      await loadDexChunk(uniq.slice(i, i + 6));
+      await loadDexChunk(uniq.slice(i, i + 6), dexChain, intoMap);
     }
-    // Retry misses one-by-one (Maximus needs HEX-quoted pairs).
-    const miss = uniq.filter((a) => !pairByToken.has(a));
+    const miss = uniq.filter((a) => !intoMap.has(a));
     for (const addr of miss) {
       try {
-        await loadDexChunk([addr]);
+        await loadDexChunk([addr], dexChain, intoMap);
       } catch (_) {
         /* keep going */
       }
     }
   }
 
+  function quoteMaxi(addr) {
+    return maxiPairs.get(addr.toLowerCase()) || null;
+  }
   function quote(addr) {
-    return pairByToken.get(addr.toLowerCase()) || null;
+    return pulsePairs.get(addr.toLowerCase()) || null;
   }
 
   function fmtUsd(n) {
@@ -340,17 +375,50 @@
     return cardShell(id, tag, '<div class="err">' + err + "</div>");
   }
 
-  function renderMaxi(pool, row, hist) {
-    if (row.error) return renderError(pool.id, pool.tag, row.error);
+  function sparkSvg(series) {
+    if (!series || series.length < 2) return "";
+    const w = 220;
+    const h = 36;
+    const min = Math.min(...series);
+    const max = Math.max(...series);
+    const span = max - min || 1;
+    const pts = series
+      .map((v, i) => {
+        const x = (i / (series.length - 1)) * w;
+        const y = h - 2 - ((v - min) / span) * (h - 4);
+        return x.toFixed(1) + "," + y.toFixed(1);
+      })
+      .join(" ");
+    const last = series[series.length - 1];
+    const stroke = last < -0.25 ? "#6dcf8a" : last > 0.25 ? "#e07a7a" : "#9aa3b5";
+    return (
+      '<svg class="spark" viewBox="0 0 ' +
+      w +
+      " " +
+      h +
+      '" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="' +
+      stroke +
+      '" stroke-width="1.5" points="' +
+      pts +
+      '"/></svg><div class="spark-cap">Δ vs backing · ' +
+      series.length +
+      "d</div>"
+    );
+  }
+
+  function renderMaxi(pool, row) {
+    const id = poolId(pool);
+    if (row.error) return renderError(id, pool.tag, row.error);
     const disc = row.deltaPct;
     return cardShell(
-      pool.id,
+      id,
       pool.tag + " · " + row.progressPct.toFixed(1) + "%",
       '<div class="delta ' +
         deltaClass(disc) +
         '">' +
         deltaLabel(disc) +
         "</div>" +
+        sparkSvg(row.histDeltas) +
         '<div class="one">Mkt <b>' +
         fmtHex(row.marketHex) +
         "</b> · Back <b>" +
@@ -371,7 +439,6 @@
         "<dt>Days left</dt><dd>" +
         row.daysLeft +
         "</dd>" +
-        histLine(hist, pool.id) +
         (row.pairUrl
           ? '<dt>Pair</dt><dd><a href="' +
             row.pairUrl +
@@ -449,7 +516,6 @@
   }
 
   const ROTATE_KEY = "delta-rotates-v1";
-  const HIST_KEY = "delta-maxi-hist-v1";
 
   /** Map symbol → USD from loaded quotes (best-effort). */
   function usdBySym() {
@@ -530,37 +596,109 @@
     if (dirty) saveRotateBaseline(base);
   }
 
-  function pushMaxiHist(rows) {
+  function backingHexAtDay(stake, supply, day) {
+    if (!stake || supply === 0n) return null;
+    const begin = stake.lockedDay;
+    const end = Math.min(day, stake.lockedDay + stake.stakedDays);
+    if (end <= begin) return heartsRatio(stake.stakedHearts, supply);
+    const days = [];
+    for (let d = begin; d < end; d++) {
+      const row = dayCache.get(d);
+      if (row) days.push(row);
+    }
+    const payout = interestHearts(stake.stakeShares, days);
+    return heartsRatio(stake.stakedHearts + payout, supply);
+  }
+
+  let geckoGate = Promise.resolve();
+  function withGecko(fn) {
+    const run = geckoGate.then(fn, fn);
+    geckoGate = run.then(
+      () => new Promise((r) => setTimeout(r, 350)),
+      () => new Promise((r) => setTimeout(r, 350))
+    );
+    return run;
+  }
+
+  async function geckoJson(url) {
+    return withGecko(async () => {
+      const res = await fetch(url, { headers: { accept: "application/json" } });
+      if (!res.ok) throw new Error("Gecko HTTP " + res.status);
+      return res.json();
+    });
+  }
+
+  async function pickGeckoHexPool(tokenAddr) {
+    const url =
+      "https://api.geckoterminal.com/api/v2/networks/" +
+      chain.gecko +
+      "/tokens/" +
+      tokenAddr.toLowerCase() +
+      "/pools?page=1";
+    const j = await geckoJson(url);
+    const rows = (j.data || [])
+      .map((row) => {
+        const name = (row.attributes?.name || "").toUpperCase();
+        const reserve = Number(row.attributes?.reserve_in_usd || 0);
+        const id = String(row.id || "");
+        const pool = id.includes("_") ? id.split("_").slice(1).join("_") : id;
+        // Prefer simple TOKEN/HEX pools over multi-hop junk.
+        const simple = /^[A-Z0-9.+-]+\s*\/\s*HEX/.test(name);
+        const hexish = name.includes("/ HEX") || name.includes("/HEX");
+        return { pool, reserve, score: (simple ? 1e9 : 0) + reserve, hexish, name };
+      })
+      .filter((r) => r.pool && r.hexish)
+      .sort((a, b) => b.score - a.score);
+    return rows[0]?.pool || null;
+  }
+
+  async function loadOhlcvHex(poolAddr) {
+    const url =
+      "https://api.geckoterminal.com/api/v2/networks/" +
+      chain.gecko +
+      "/pools/" +
+      poolAddr +
+      "/ohlcv/day?aggregate=1&limit=60&currency=token";
+    const j = await geckoJson(url);
+    return j.data?.attributes?.ohlcv_list || [];
+  }
+
+  async function histDeltasForPool(tokenAddr, stake, supply, currentDay) {
     try {
-      const prev = JSON.parse(localStorage.getItem(HIST_KEY) || "[]") || [];
-      const snap = {
-        t: Date.now(),
-        rows: POOLS.map((p, i) => ({
-          id: p.id,
-          d: rows[i]?.deltaPct ?? null,
-          m: rows[i]?.marketHex ?? null,
-          b: rows[i]?.backingHex ?? null,
-        })),
-      };
-      const next = [...prev, snap].slice(-24);
-      localStorage.setItem(HIST_KEY, JSON.stringify(next));
-      return next;
+      const mkt = quoteMaxi(tokenAddr);
+      let poolAddr = mkt?.pairAddress || null;
+      if (!poolAddr) poolAddr = await pickGeckoHexPool(tokenAddr);
+      if (!poolAddr) return [];
+      const ohlcv = await loadOhlcvHex(poolAddr);
+      if (!ohlcv.length) {
+        // Pair from Dex may not be indexed — fall back to Gecko pick once.
+        const alt = await pickGeckoHexPool(tokenAddr);
+        if (!alt || alt === poolAddr) return [];
+        const retry = await loadOhlcvHex(alt);
+        if (!retry.length) return [];
+        return deltasFromOhlcv(retry, stake, supply, currentDay);
+      }
+      return deltasFromOhlcv(ohlcv, stake, supply, currentDay);
     } catch (_) {
       return [];
     }
   }
 
-  function histLine(hist, id) {
-    if (!hist || hist.length < 2) return "";
-    const series = hist
-      .map((h) => h.rows.find((r) => r.id === id)?.d)
-      .filter((x) => x != null && Number.isFinite(x));
-    if (series.length < 2) return "";
-    const first = series[0];
-    const last = series[series.length - 1];
-    return (
-      "<dt>Δ since first snap</dt><dd>" + fmtPct(last - first) + " pts</dd>"
-    );
+  function deltasFromOhlcv(ohlcv, stake, supply, currentDay) {
+    const nowUnix = Date.now() / 1000;
+    const chronological = [...ohlcv].sort((a, b) => a[0] - b[0]);
+    const out = [];
+    for (const row of chronological) {
+      const ts = row[0];
+      const close = Number(row[4]);
+      if (!(close > 0)) continue;
+      const daysAgo = Math.max(0, Math.round((nowUnix - ts) / 86400));
+      const hexDay = currentDay - daysAgo;
+      const back = backingHexAtDay(stake, supply, hexDay);
+      if (back == null || !(back > 0)) continue;
+      out.push(((close - back) / back) * 100);
+    }
+    return out;
   }
 
   async function computePool(pool, currentDay) {
@@ -579,13 +717,12 @@
     const backingHex = heartsRatio(backingHearts, supply);
     const principalHex = heartsRatio(stake.stakedHearts, supply);
     const yieldHex = heartsRatio(payout, supply);
-    const mkt = quote(pool.address);
+    const mkt = quoteMaxi(pool.address);
     const marketHex = mkt?.hexPer ?? null;
-    // Prefer HEX-quoted; else derive from USD / pHEX USD
     let hexPer = marketHex;
     if (hexPer == null && mkt?.usd != null) {
-      const phex = quote(PHEX);
-      if (phex?.usd) hexPer = mkt.usd / phex.usd;
+      const hexUsd = quoteMaxi(HEX)?.usd || quote(PHEX)?.usd;
+      if (hexUsd) hexPer = mkt.usd / hexUsd;
     }
     const deltaPct =
       hexPer != null && backingHex > 0 ? ((hexPer - backingHex) / backingHex) * 100 : null;
@@ -605,7 +742,27 @@
       daysLeft: Math.max(0, stake.stakedDays - served),
       liqUsd: mkt?.liq || 0,
       pairUrl: mkt?.pairUrl || null,
+      histDeltas: [],
+      _stake: stake,
+      _supply: supply,
+      _address: pool.address,
     };
+  }
+
+  async function attachHistCharts(maxiRows, currentDay) {
+    for (let i = 0; i < maxiRows.length; i++) {
+      const row = maxiRows[i];
+      if (row.error || !row._stake) continue;
+      row.histDeltas = await histDeltasForPool(
+        row._address,
+        row._stake,
+        row._supply,
+        currentDay
+      );
+      delete row._stake;
+      delete row._supply;
+      delete row._address;
+    }
   }
 
   function computeMajor(item) {
@@ -685,21 +842,34 @@
     return stakes;
   }
 
+  function setChainButtons() {
+    for (const btn of document.querySelectorAll(".chain-tog button")) {
+      btn.classList.toggle("on", btn.getAttribute("data-chain") === chain.id);
+    }
+  }
+
   async function refresh() {
     const btn = $("btnRefresh");
     btn.disabled = true;
-    $("strip").textContent = "Fetching chain + DEX…";
+    setChainButtons();
+    $("strip").textContent = "Fetching Pulse majors + " + chain.label + " stake pools…";
     dayCache = new Map();
-    pairByToken = new Map();
+    maxiPairs = new Map();
+    pulsePairs = new Map();
 
     try {
-      const allAddrs = [
-        ...POOLS.map((p) => p.address),
+      const maxiAddrs = [...POOLS.map((p) => p.address), HEX];
+      const pulseAddrs = [
         ...MAJORS.map((p) => p.address),
         ...MEMES.map((p) => p.address),
+        PHEX,
       ];
-      const [currentDay] = await Promise.all([getCurrentDay(), loadDexBatch(allAddrs)]);
-      $("strip").textContent = "Warming HEX daily payouts…";
+      const [currentDay] = await Promise.all([
+        getCurrentDay(),
+        loadDexBatch(maxiAddrs, chain.dex, maxiPairs),
+        loadDexBatch(pulseAddrs, "pulsechain", pulsePairs),
+      ]);
+      $("strip").textContent = "Warming HEX daily payouts (" + chain.label + ")…";
       await warmDaysForPools(currentDay);
 
       const maxiRows = await Promise.all(
@@ -728,44 +898,73 @@
         }
       });
 
-      const hist = pushMaxiHist(maxiRows);
-      const maxiEl = $("gridMaxi");
-      maxiEl.innerHTML = "";
-      const packed = POOLS.map((item, i) => ({ item, row: maxiRows[i] }));
-      packed.sort((a, b) => {
-        if (a.row.error && !b.row.error) return 1;
-        if (!a.row.error && b.row.error) return -1;
-        const da = a.row.deltaPct != null ? a.row.deltaPct : 999;
-        const db = b.row.deltaPct != null ? b.row.deltaPct : 999;
-        return da - db;
-      });
-      for (const { item, row } of packed) maxiEl.appendChild(renderMaxi(item, row, hist));
+      function paintMaxi() {
+        const maxiEl = $("gridMaxi");
+        maxiEl.innerHTML = "";
+        const packed = POOLS.map((item, i) => ({ item, row: maxiRows[i] }));
+        packed.sort((a, b) => {
+          if (a.row.error && !b.row.error) return 1;
+          if (!a.row.error && b.row.error) return -1;
+          const da = a.row.deltaPct != null ? a.row.deltaPct : 999;
+          const db = b.row.deltaPct != null ? b.row.deltaPct : 999;
+          return da - db;
+        });
+        for (const { item, row } of packed) maxiEl.appendChild(renderMaxi(item, row));
+      }
 
+      paintMaxi();
       fillGrid($("gridMajors"), MAJORS, majorRows, renderMajor);
       fillGrid($("gridMemes"), MEMES, memeRows, renderMeme);
       paintRotates();
 
       const ehex = majorRows[MAJORS.findIndex((m) => m.id === "eHEX")];
       const deep = maxiRows
-        .map((r, i) => ({ id: POOLS[i].id, d: r.deltaPct }))
+        .map((r, i) => ({ id: poolId(POOLS[i]), d: r.deltaPct }))
         .filter((x) => x.d != null)
         .sort((a, b) => a.d - b.d)[0];
       const okN = maxiRows.filter((r) => r.deltaPct != null).length;
 
-      $("strip").innerHTML =
-        "HEX day <b>" +
-        currentDay +
-        "</b> · Maximus <b>" +
-        okN +
-        "/" +
-        POOLS.length +
-        "</b>" +
-        (deep ? " · deepest <b>" + deep.id + " " + fmtPct(deep.d) + "</b>" : "") +
-        (ehex && ehex.deltaPct != null
-          ? " · eHEX <b>" + fmtPct(ehex.deltaPct) + "</b> vs pHEX"
-          : "") +
-        " · " +
-        new Date().toLocaleTimeString();
+      const majorOk = majorRows.filter((r) => !r.error).length;
+      const memeOk = memeRows.filter((r) => !r.error).length;
+      const majorDeep = majorRows
+        .map((r, i) => ({ id: MAJORS[i].id, d: r.deltaPct != null ? r.deltaPct : r.change24h }))
+        .filter((x) => x.d != null)
+        .sort((a, b) => a.d - b.d)[0];
+
+      function paintStrip(chartN) {
+        $("strip").innerHTML =
+          "HEX day <b>" +
+          currentDay +
+          "</b> · majors <b>" +
+          majorOk +
+          "/" +
+          MAJORS.length +
+          "</b> · memes <b>" +
+          memeOk +
+          "/" +
+          MEMES.length +
+          "</b> · pools <b>" +
+          okN +
+          "/" +
+          POOLS.length +
+          "</b> (" +
+          chain.label +
+          ")" +
+          (chartN != null ? " · pool charts <b>" + chartN + "/" + POOLS.length + "</b>" : "") +
+          (majorDeep ? " · softest major <b>" + majorDeep.id + " " + fmtPct(majorDeep.d) + "</b>" : "") +
+          (deep ? " · softest pool <b>" + deep.id + " " + fmtPct(deep.d) + "</b>" : "") +
+          (ehex && ehex.deltaPct != null
+            ? " · eHEX <b>" + fmtPct(ehex.deltaPct) + "</b> vs pHEX"
+            : "") +
+          " · " +
+          new Date().toLocaleTimeString();
+      }
+
+      paintStrip(null);
+      await attachHistCharts(maxiRows, currentDay);
+      paintMaxi();
+      const chartN = maxiRows.filter((r) => (r.histDeltas || []).length >= 2).length;
+      paintStrip(chartN);
     } catch (e) {
       $("strip").innerHTML = '<span class="err">' + String(e.message || e) + "</span>";
     } finally {
@@ -773,6 +972,17 @@
     }
   }
 
+  function selectChain(id) {
+    if (!CHAINS[id] || chain.id === id) return;
+    chain = CHAINS[id];
+    try {
+      localStorage.setItem(CHAIN_KEY, id);
+    } catch (_) {}
+    refresh();
+  }
+
   $("btnRefresh").addEventListener("click", refresh);
+  $("btnPulse").addEventListener("click", () => selectChain("pulse"));
+  $("btnEth").addEventListener("click", () => selectChain("eth"));
   refresh();
 })();

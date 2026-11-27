@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Δ Discounts</title>
+  <title>Δ Discounts · Pulse board</title>
   <link rel="stylesheet" href="./kit.css" />
   <style>
     .wrap {
@@ -143,14 +143,59 @@
       border-radius: 999px;
       padding: 1px 7px;
     }
+    .sec-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 12px;
+      margin-top: 4px;
+    }
+    .sec-row .sec-h { margin: 0; }
+    .chain-tog {
+      display: inline-flex;
+      gap: 4px;
+      padding: 2px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+    }
+    .chain-tog button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .chain-tog button.on {
+      background: color-mix(in srgb, var(--fg) 14%, transparent);
+      color: var(--fg);
+    }
+    .spark {
+      display: block;
+      width: 100%;
+      height: 36px;
+      margin-top: 4px;
+    }
+    .spark-cap {
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header class="top">
       <div>
-        <h1>Δ Discounts · Pulse</h1>
-        <p class="sub">Maximus backing Δ · majors parity/peg · RH pump.tires memes. Free chain + DexScreener — no LookIntoMaxi.</p>
+        <h1>Δ Discounts</h1>
+        <p class="sub">Pulse market board — majors, memes, rotates, and stake-pool backing. Free chain + DEX.</p>
       </div>
       <div class="actions">
         <a class="kit" href="https://ihelpmaybe.github.io/" style="text-decoration:none;display:inline-flex;align-items:center">ihelpmaybe hub</a>
@@ -159,22 +204,28 @@
     </header>
     <div class="strip" id="strip">Loading…</div>
 
-    <h2 class="sec-h">Maximus · vs stake backing</h2>
-    <div class="grid" id="gridMaxi"></div>
-
     <h2 class="sec-h">Majors · parity / peg / spot</h2>
     <div class="grid" id="gridMajors"></div>
 
-    <h2 class="sec-h">RH pump.tires · first-wave memes</h2>
+    <h2 class="sec-h">Memes · RH first wave</h2>
     <div class="grid" id="gridMemes"></div>
 
     <h2 class="sec-h">Rotates · A → B <span class="skel-tag">watch</span></h2>
     <div class="grid" id="gridRotates"></div>
 
+    <div class="sec-row">
+      <h2 class="sec-h">Stake pools · market vs backing</h2>
+      <div class="chain-tog" role="group" aria-label="Stake-pool chain">
+        <button type="button" class="on" data-chain="pulse" id="btnPulse">Pulse</button>
+        <button type="button" data-chain="eth" id="btnEth">Ethereum</button>
+      </div>
+    </div>
+    <div class="grid" id="gridMaxi"></div>
+
     <p class="foot" id="note">
-      Maximus Δ = market HEX/token vs on-chain backing (stake principal + daily payout share so far) ÷ supply. TEAM half-BPB skim not subtracted — backing runs a bit rich. eHEX Δ vs pHEX USD. DAI = bridged vs $1. Memes = USD + 24h only. Rotates = % move since you first opened this board (local), not a trade log.
+      Majors = spot / peg / eHEX↔pHEX parity. Memes = USD + 24h. Rotates = % move since you opened this board (local). Stake pools = market HEX/token vs on-chain backing (principal + payout share) ÷ supply; charts from free DEX OHLCV. TEAM skim not subtracted — pool backing runs a bit rich.
     </p>
   </div>
-  <script src="./delta-discounts-app.js"></script>
+  <script src="./delta-discounts-app.js?v=20261127c"></script>
 </body>
 </html>

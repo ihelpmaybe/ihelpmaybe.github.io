@@ -1,11 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Hearts Archive">
-  <rect width="32" height="32" rx="6" fill="#100805"/>
   <text
     x="16"
-    y="22.5"
+    y="23"
     text-anchor="middle"
     font-family="Georgia, 'Times New Roman', serif"
-    font-size="17"
+    font-size="18"
     font-weight="700"
     fill="#f3efe6"
   >H</text>
