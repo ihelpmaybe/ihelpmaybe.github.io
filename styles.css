@@ -169,11 +169,11 @@ main,
 
 .grid {
   /* Pointy-top hex honeycomb: row pitch ¾H, odd rows +½W */
-  --hex: clamp(14rem, 17vw, 16.25rem);
+  --hex: clamp(13.5rem, 15vw, 15.75rem);
   --hex-h: calc(var(--hex) * 1.1547);
-  --nest-y: calc(var(--hex-h) * -0.25);
+  --nest-y: 0.65rem; /* 1-col: stack with gap; multi-col overrides to negative */
   --shift: calc(var(--hex) * 0.5);
-  --hex-gap: 0.15rem;
+  --hex-gap: 0.2rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -181,18 +181,14 @@ main,
   column-gap: var(--hex-gap);
   row-gap: 0;
   width: 100%;
-  max-width: calc(var(--hex) * 4.5 + var(--hex-gap) * 3 + 0.5rem);
+  max-width: calc(var(--hex) + 1rem);
   margin-inline: auto;
-  padding: calc(var(--hex-h) * 0.28) calc(var(--shift) * 0.55) calc(var(--hex-h) * 0.3);
+  padding: 0.35rem 0 0.75rem;
   animation: rise 0.55s ease-out 0.08s both;
 }
 
-.grid.cluster {
-  max-width: calc(var(--hex) * 4.5 + var(--hex-gap) * 3 + 0.5rem);
-}
-
 .grid-stuck {
-  max-width: calc(var(--hex) * 2 + var(--hex-gap) + 0.5rem);
+  max-width: calc(var(--hex) + 1rem);
   margin-inline: auto;
 }
 
@@ -226,10 +222,12 @@ main,
     background 0.15s ease;
 }
 
-/* 2-col honeycomb (phones) */
-@media (max-width: 639px) {
+/* 2-col honeycomb */
+@media (min-width: 36rem) {
   .grid {
-    max-width: calc(var(--hex) * 2 + var(--hex-gap) + 0.5rem);
+    --nest-y: calc(var(--hex-h) * -0.25);
+    max-width: calc(var(--hex) * 2.5 + var(--hex-gap) + 0.5rem);
+    padding: calc(var(--hex-h) * 0.28) calc(var(--shift) * 0.55) calc(var(--hex-h) * 0.3);
   }
 
   .grid > .tile:nth-child(4n + 3),
@@ -251,9 +249,25 @@ main,
 }
 
 /* 3-col honeycomb */
-@media (min-width: 640px) and (max-width: 979px) {
+@media (min-width: 48rem) {
   .grid {
-    max-width: calc(var(--hex) * 3 + var(--hex-gap) * 2 + 0.5rem);
+    max-width: calc(var(--hex) * 3.5 + var(--hex-gap) * 2 + 0.5rem);
+  }
+
+  .grid > .tile:nth-child(4n + 3),
+  .grid > .tile:nth-child(4n + 4),
+  .grid > a.tile:nth-child(4n + 3),
+  .grid > a.tile:nth-child(4n + 4) {
+    transform: none;
+  }
+
+  .grid > .tile:nth-child(4n + 3):hover,
+  .grid > .tile:nth-child(4n + 4):hover,
+  .grid > a.tile:nth-child(4n + 3):hover,
+  .grid > a.tile:nth-child(4n + 4):hover,
+  .grid > .tile:nth-child(4n + 3):has(:is(.tile-main, .tile-links a):hover),
+  .grid > .tile:nth-child(4n + 4):has(:is(.tile-main, .tile-links a):hover) {
+    transform: translateY(-4px) scale(1.03);
   }
 
   .grid > .tile:nth-child(6n + 4),
@@ -280,7 +294,32 @@ main,
 }
 
 /* 4-col honeycomb */
-@media (min-width: 980px) {
+@media (min-width: 64rem) {
+  .grid {
+    max-width: calc(var(--hex) * 4.5 + var(--hex-gap) * 3 + 0.5rem);
+  }
+
+  .grid > .tile:nth-child(6n + 4),
+  .grid > .tile:nth-child(6n + 5),
+  .grid > .tile:nth-child(6n + 6),
+  .grid > a.tile:nth-child(6n + 4),
+  .grid > a.tile:nth-child(6n + 5),
+  .grid > a.tile:nth-child(6n + 6) {
+    transform: none;
+  }
+
+  .grid > .tile:nth-child(6n + 4):hover,
+  .grid > .tile:nth-child(6n + 5):hover,
+  .grid > .tile:nth-child(6n + 6):hover,
+  .grid > a.tile:nth-child(6n + 4):hover,
+  .grid > a.tile:nth-child(6n + 5):hover,
+  .grid > a.tile:nth-child(6n + 6):hover,
+  .grid > .tile:nth-child(6n + 4):has(:is(.tile-main, .tile-links a):hover),
+  .grid > .tile:nth-child(6n + 5):has(:is(.tile-main, .tile-links a):hover),
+  .grid > .tile:nth-child(6n + 6):has(:is(.tile-main, .tile-links a):hover) {
+    transform: translateY(-4px) scale(1.03);
+  }
+
   .grid > .tile:nth-child(8n + 5),
   .grid > .tile:nth-child(8n + 6),
   .grid > .tile:nth-child(8n + 7),
