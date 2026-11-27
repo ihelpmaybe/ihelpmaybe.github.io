@@ -250,16 +250,18 @@ main,
   background: #041018;
 }
 
-.tile-links a.tile-opt--showcase,
-.tile-links a.tile-opt--apk {
+.tile-links a.tile-opt--peek,
+.tile-links a.tile-opt--apk,
+.tile-links a.tile-opt--releases {
   color: var(--text);
   background: color-mix(in srgb, var(--pls-magenta) 22%, var(--bg));
   border-color: color-mix(in srgb, var(--pls-magenta) 70%, var(--border));
   box-shadow: 0 0 14px rgba(230, 25, 230, 0.18);
 }
 
-.tile-links a.tile-opt--showcase::before,
-.tile-links a.tile-opt--apk::before {
+.tile-links a.tile-opt--peek::before,
+.tile-links a.tile-opt--apk::before,
+.tile-links a.tile-opt--releases::before {
   background: var(--pls-cyan);
 }
 
@@ -286,10 +288,12 @@ main,
   filter: brightness(1.06);
 }
 
-.tile-links a.tile-opt--showcase:hover,
-.tile-links a.tile-opt--showcase:focus-visible,
+.tile-links a.tile-opt--peek:hover,
+.tile-links a.tile-opt--peek:focus-visible,
 .tile-links a.tile-opt--apk:hover,
-.tile-links a.tile-opt--apk:focus-visible {
+.tile-links a.tile-opt--apk:focus-visible,
+.tile-links a.tile-opt--releases:hover,
+.tile-links a.tile-opt--releases:focus-visible {
   border-color: var(--pls-cyan);
   box-shadow: 0 0 20px rgba(230, 25, 230, 0.32);
 }
