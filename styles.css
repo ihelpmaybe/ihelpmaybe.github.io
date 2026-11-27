@@ -189,6 +189,56 @@ main,
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+.tile-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.tile-links {
+  margin: 0.15rem 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+
+.tile-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--text-2);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.tile-links a:hover,
+.tile-links a:focus-visible {
+  border-color: var(--pls-cyan);
+  color: var(--text);
+  background: color-mix(in srgb, var(--pls-violet) 22%, var(--bg-2));
+  outline: none;
+}
+
+.tile-links a.tile-opt--live {
+  border-color: color-mix(in srgb, var(--pls-cyan) 45%, var(--border));
+}
+
+.tile-links a.tile-opt--github {
+  border-color: color-mix(in srgb, var(--pls-violet) 45%, var(--border));
+}
+
 .tile-rank {
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -214,13 +264,31 @@ main,
   border: 1px solid var(--border);
 }
 
-.tile:hover,
-.tile:focus-visible {
+a.tile:hover,
+a.tile:focus-visible,
+.tile:has(.tile-main:hover),
+.tile:has(.tile-main:focus-visible),
+.tile:has(.tile-links a:hover),
+.tile:has(.tile-links a:focus-visible) {
   border-color: var(--pls-violet);
   background: var(--bg-2);
   outline: none;
   transform: translateY(-1px);
   box-shadow: 0 0 0 1px rgba(0, 234, 255, 0.25);
+}
+
+.tile--pulse {
+  border-color: color-mix(in srgb, var(--pls-magenta) 55%, var(--border));
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 120%, rgba(230, 25, 230, 0.18), transparent 60%),
+    var(--bg);
+  animation: tile-glow-pulse 2.4s ease-in-out infinite;
+}
+
+.tile--pulse:hover,
+.tile--pulse:focus-visible {
+  border-color: var(--pls-cyan);
+  animation-duration: 1.4s;
 }
 
 .tile-name {
@@ -283,6 +351,24 @@ main,
   }
 }
 
+@keyframes tile-glow-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(230, 25, 230, 0.35),
+      0 0 14px rgba(128, 0, 255, 0.35),
+      0 0 28px rgba(0, 234, 255, 0.12);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(0, 234, 255, 0.55),
+      0 0 22px rgba(230, 25, 230, 0.55),
+      0 0 40px rgba(128, 0, 255, 0.28);
+    filter: brightness(1.08);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero,
   .grid,
@@ -290,5 +376,11 @@ main,
   .tile {
     animation: none;
     transition: none;
+  }
+
+  .tile--pulse {
+    box-shadow:
+      0 0 0 1px rgba(230, 25, 230, 0.4),
+      0 0 16px rgba(128, 0, 255, 0.35);
   }
 }
