@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>Pulse Portfolio — ihelpmaybe</title>
+  <meta name="description" content="Local Pulse-first bag desk: multi-wallet watch, HEX stakes, ~USD, Perch sync. Run on your PC — Pages is showcase only.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop stop-color='%23ff0000'/%3E%3Cstop offset='.5' stop-color='%238000ff'/%3E%3Cstop offset='1' stop-color='%2300eaff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='16' height='16' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .banner {
+      margin: 0 0 1.25rem;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      background: rgba(128, 0, 255, 0.12);
+      color: var(--text-2);
+      font-size: 0.92rem;
+      max-width: 42rem;
+    }
+    .banner strong { color: var(--text); }
+    .steps {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 0.65rem;
+      max-width: 42rem;
+    }
+    .steps li {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      background: rgba(10, 6, 20, 0.65);
+    }
+    .steps code {
+      font-family: var(--mono);
+      font-size: 0.86em;
+      color: var(--brand-hot);
+    }
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin: 1.25rem 0 1.75rem;
+    }
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      background: rgba(149, 5, 250, 0.18);
+    }
+    .cta:hover { border-color: var(--brand-hot); }
+    .cta.ghost {
+      background: transparent;
+      color: var(--text-2);
+    }
+    .feat {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.65rem;
+      margin: 0 0 1.5rem;
+      max-width: 52rem;
+    }
+    .feat span {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.7rem 0.85rem;
+      font-size: 0.88rem;
+      color: var(--text-2);
+    }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="hero">
+    <p class="eyebrow"><a href="../" style="color:inherit;text-decoration:none">← hub</a> · pulsechain</p>
+    <h1 class="brand">Pulse Portfolio</h1>
+    <p class="lede">Local Pulse-first bag desk — watchlist, HEX stakes, ~USD, Perch sync.</p>
+    <p class="banner">
+      <strong>Hub Pages = showcase.</strong> Live scans need Node on your machine
+      (<code style="font-family:var(--mono);color:var(--brand-hot)">127.0.0.1:3131</code>).
+      No wallet Connect on this page.
+    </p>
+    <div class="cta-row">
+      <a class="cta" href="https://github.com/ihelpmaybe/pulse-portfolio" rel="noopener">GitHub</a>
+      <a class="cta ghost" href="https://github.com/ihelpmaybe/pulse-portfolio#readme" rel="noopener">README</a>
+      <a class="cta ghost" href="../">ihelpmaybe hub</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="block" aria-labelledby="what-h">
+      <h2 id="what-h" class="section-label">What you get</h2>
+      <div class="feat">
+        <span>Multi-wallet fast scan</span>
+        <span>PLS · HEX liquid · stake count</span>
+        <span>Δ vs last scan</span>
+        <span>~USD via DexScreener</span>
+        <span>Deep bag + HEX stakes</span>
+        <span>Export → Pulse Perch</span>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="run-h">
+      <h2 id="run-h" class="section-label">Run local</h2>
+      <ol class="steps">
+        <li>Clone <code>github.com/ihelpmaybe/pulse-portfolio</code></li>
+        <li><code>npm install</code></li>
+        <li><code>npm run watch:seed</code> then <code>npm run watch:scan</code></li>
+        <li><code>npm run dev:web</code> → open <code>http://127.0.0.1:3131</code></li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <a href="https://github.com/ihelpmaybe/pulse-portfolio" rel="noopener">github.com/ihelpmaybe/pulse-portfolio</a>
+    · MIT · SolariView ancestry in NOTICE
+  </footer>
+</body>
+</html>
