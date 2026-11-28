@@ -1,129 +1,1105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="dark">
-  <title>Pulse Portfolio — ihelpmaybe</title>
-  <meta name="description" content="Local Pulse-first bag desk: multi-wallet watch, HEX stakes, ~USD, Perch sync. Run on your PC — Pages is showcase only.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop stop-color='%23ff0000'/%3E%3Cstop offset='.5' stop-color='%238000ff'/%3E%3Cstop offset='1' stop-color='%2300eaff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='16' height='16' fill='url(%23g)'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="../styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Pulse Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
   <style>
-    .banner {
-      margin: 0 0 1.25rem;
-      padding: 0.85rem 1rem;
-      border: 1px solid var(--border-strong);
-      border-radius: 12px;
-      background: rgba(128, 0, 255, 0.12);
-      color: var(--text-2);
-      font-size: 0.92rem;
-      max-width: 42rem;
+    :root {
+      --bg: #071018;
+      --bg-2: #0b1722;
+      --surface: #0f1c28;
+      --surface-2: #132433;
+      --border: #1e3548;
+      --accent: #2ee6a6;
+      --accent-dim: #0d3d2e;
+      --accent-text: #04140f;
+      --text: #e8f1f7;
+      --muted: #7a93a8;
+      --green: #2ee6a6;
+      --red: #ff6b7a;
+      --warn: #f0c14a;
+      --radius: 6px;
+      --font: "Syne", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+      --touch: 44px;
     }
-    .banner strong { color: var(--text); }
-    .steps {
-      margin: 0;
-      padding: 0;
-      list-style: none;
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { overflow-x: hidden; }
+
+    body {
+      background:
+        radial-gradient(1200px 600px at 85% -10%, #123548 0%, transparent 55%),
+        radial-gradient(900px 500px at -10% 20%, #0a2a22 0%, transparent 50%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      padding: 1.25rem 1.5rem 2rem;
+      overflow-x: hidden;
+    }
+
+    .shell {
+      max-width: 1280px;
+      margin: 0 auto;
       display: grid;
-      gap: 0.65rem;
-      max-width: 42rem;
+      grid-template-columns: minmax(220px, 260px) 1fr;
+      gap: 1.25rem;
+      align-items: start;
+      min-width: 0;
+      width: 100%;
     }
-    .steps li {
+
+    aside {
+      position: sticky;
+      top: 1rem;
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 0.85rem 1rem;
-      background: rgba(10, 6, 20, 0.65);
+      border-radius: var(--radius);
+      padding: 1.1rem 1rem;
+      min-width: 0;
     }
-    .steps code {
-      font-family: var(--mono);
-      font-size: 0.86em;
-      color: var(--brand-hot);
-    }
-    .cta-row {
+
+    .brand-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.65rem;
-      margin: 1.25rem 0 1.75rem;
-    }
-    .cta {
-      display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.55rem 0.9rem;
-      border-radius: 999px;
-      border: 1px solid var(--border-strong);
+      gap: 0.5rem 0.75rem;
+    }
+
+    .brand {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
       color: var(--text);
-      text-decoration: none;
-      font-size: 0.9rem;
-      background: rgba(149, 5, 250, 0.18);
     }
-    .cta:hover { border-color: var(--brand-hot); }
-    .cta.ghost {
-      background: transparent;
-      color: var(--text-2);
+
+    .brand span { color: var(--accent); }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-size: 0.68rem;
+      font-family: var(--mono);
+      padding: 3px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
-    .feat {
+
+    .aside-details {
+      margin-top: 0.85rem;
+    }
+
+    .aside-details > summary {
+      list-style: none;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .aside-details > summary::-webkit-details-marker { display: none; }
+
+    .aside-copy {
+      margin-top: 0.65rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      font-family: var(--mono);
+    }
+
+    .aside-meta {
+      margin-top: 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 0.65rem;
-      margin: 0 0 1.5rem;
-      max-width: 52rem;
+      gap: 0.35rem;
     }
-    .feat span {
+
+    .aside-meta strong { color: var(--text); font-weight: 500; }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-width: 0;
+    }
+
+    .wallet-bar {
+      display: grid;
+      grid-template-columns: 1fr minmax(140px, 220px) auto;
+      gap: 0.75rem;
+      align-items: end;
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 0.7rem 0.85rem;
-      font-size: 0.88rem;
-      color: var(--text-2);
+      border-radius: var(--radius);
+      padding: 0.9rem 1rem;
+      min-width: 0;
+      z-index: 20;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.28rem;
+      min-width: 0;
+    }
+
+    label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: calc(var(--radius) - 1px);
+      padding: 0.55rem 0.7rem;
+      font-size: 0.84rem;
+      font-family: var(--mono);
+      width: 100%;
+      min-height: var(--touch);
+      outline: none;
+    }
+
+    input:focus, select:focus { border-color: var(--accent); }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+      gap: 0.9rem;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.95rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      min-height: 0;
+      min-width: 0;
+    }
+
+    .panel.panel-watch { grid-column: 1 / -1; order: 0; }
+    .panel.panel-native { order: 1; }
+    .panel.panel-token { order: 2; }
+    .panel.panel-stakes { order: 3; }
+
+    .panel h2 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: end;
+    }
+
+    .row .form-group { flex: 1 1 140px; }
+
+    button {
+      background: var(--accent);
+      color: var(--accent-text);
+      border: none;
+      border-radius: calc(var(--radius) - 1px);
+      padding: 0.55rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      font-family: var(--font);
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-height: var(--touch);
+    }
+
+    button:hover { filter: brightness(1.05); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    button.ghost {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      font-family: var(--mono);
+      font-weight: 500;
+      padding: 0.45rem 0.7rem;
+      font-size: 0.75rem;
+      min-height: 40px;
+    }
+
+    button.ghost.active {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .output {
+      display: none;
+      margin-top: 0.15rem;
+      min-width: 0;
+    }
+
+    .output.visible { display: block; }
+
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      max-width: 100%;
+    }
+
+    pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) - 1px);
+      padding: 0.75rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.55;
+    }
+
+    .status-err { color: var(--red); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      font-family: var(--mono);
+    }
+
+    th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+      padding: 0.4rem 0.45rem;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.45rem;
+      border-bottom: 1px solid #152636;
+    }
+
+    td.num { text-align: right; color: var(--green); }
+    td.zero { text-align: right; color: var(--muted); }
+    td.dim {
+      color: var(--muted);
+      font-size: 0.72rem;
+      max-width: 10rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    tr.watch-row { cursor: pointer; }
+    tr.watch-row:hover td { background: var(--surface-2); }
+
+    .more-panels {
+      grid-column: 1 / -1;
+      order: 10;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 0.75rem 1rem;
+      min-width: 0;
+    }
+
+    .more-panels > summary {
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      list-style: none;
+      min-height: var(--touch);
+      display: flex;
+      align-items: center;
+    }
+
+    .more-panels > summary::-webkit-details-marker { display: none; }
+
+    .more-panels[open] > summary { margin-bottom: 0.85rem; color: var(--text); }
+
+    .more-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+      gap: 0.9rem;
+      min-width: 0;
+    }
+
+    .more-grid .panel {
+      border-color: var(--border);
+    }
+
+    footer {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-family: var(--mono);
+      padding-top: 0.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .site-donate {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem 0.55rem;
+    }
+
+    .site-donate-addr {
+      color: var(--ink, inherit);
+      word-break: break-all;
+    }
+
+    .site-donate-copy {
+      appearance: none;
+      border: 1px solid var(--border, #444);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.68rem;
+      padding: 0.12rem 0.4rem;
+      cursor: pointer;
+    }
+
+    /*
+     * Desktop / wide PC — side rail + dense multi-column grid.
+     * More/About expand into the main grid (no accordion chrome).
+     */
+    @media (min-width: 901px) {
+      :root { --touch: 38px; }
+
+      .aside-details > summary {
+        display: none !important;
+      }
+
+      .aside-details {
+        margin-top: 0.85rem;
+      }
+
+      .aside-copy {
+        margin-top: 0;
+      }
+
+      /* Flatten More into panel-grid peers so width fills */
+      .more-panels {
+        display: contents;
+        border: none;
+        background: transparent;
+        padding: 0;
+      }
+
+      .more-panels > summary {
+        display: none !important;
+      }
+
+      .more-grid {
+        display: contents;
+      }
+
+      .more-grid .panel {
+        /* peer cards in main grid */
+        order: 10;
+      }
+
+      button.ghost {
+        min-height: 36px;
+      }
+    }
+
+    /* Tablet: single column shell, still show More expanded via JS */
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      aside { position: static; }
+      .wallet-bar {
+        grid-template-columns: 1fr;
+      }
+      .wallet-bar > button { width: 100%; }
+
+      .panel-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Phone — compact + sticky wallet */
+    @media (max-width: 600px) {
+      :root { --touch: 44px; }
+
+      body { padding: 0.75rem 0.75rem 1.5rem; }
+
+      aside {
+        padding: 0.75rem 0.85rem;
+      }
+
+      .brand { font-size: 1.15rem; }
+
+      .aside-details > summary {
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+      }
+
+      .wallet-bar {
+        position: sticky;
+        top: 0;
+        border-radius: 0 0 var(--radius) var(--radius);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        background: var(--surface);
+      }
+
+      .panel-grid {
+        gap: 0.75rem;
+      }
+
+      .more-grid {
+        grid-template-columns: 1fr;
+      }
+
+      th[data-col="wide"],
+      td[data-col="wide"] {
+        display: none;
+      }
+
+      td.dim { max-width: 6rem; }
+
+      button.ghost {
+        min-height: var(--touch);
+        padding: 0.5rem 0.75rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="noise" aria-hidden="true"></div>
-
-  <header class="hero">
-    <p class="eyebrow"><a href="../" style="color:inherit;text-decoration:none">← hub</a> · pulsechain</p>
-    <h1 class="brand">Pulse Portfolio</h1>
-    <p class="lede">Local Pulse-first bag desk — watchlist, HEX stakes, ~USD, Perch sync.</p>
-    <p class="banner">
-      <strong>Hub Pages = showcase.</strong> Live scans need Node on your machine
-      (<code style="font-family:var(--mono);color:var(--brand-hot)">127.0.0.1:3131</code>).
-      No wallet Connect on this page.
-    </p>
-    <div class="cta-row">
-      <a class="cta" href="https://github.com/ihelpmaybe/pulse-portfolio" rel="noopener">GitHub</a>
-      <a class="cta ghost" href="https://github.com/ihelpmaybe/pulse-portfolio#readme" rel="noopener">README</a>
-      <a class="cta ghost" href="../">ihelpmaybe hub</a>
-    </div>
-  </header>
-
-  <main>
-    <section class="block" aria-labelledby="what-h">
-      <h2 id="what-h" class="section-label">What you get</h2>
-      <div class="feat">
-        <span>Multi-wallet fast scan</span>
-        <span>PLS · HEX liquid · stake count</span>
-        <span>Δ vs last scan</span>
-        <span>~USD via DexScreener</span>
-        <span>Deep bag + HEX stakes</span>
-        <span>Export → Pulse Perch</span>
+  <div class="shell">
+    <aside>
+      <div class="brand-row">
+        <div class="brand">Pulse <span>Portfolio</span></div>
+        <div class="badge">local · rpc only</div>
       </div>
-    </section>
+      <details class="aside-details">
+        <summary>About</summary>
+        <p class="aside-copy">Your bag, your RPC. No indexer tax. Pulse first — other chains still available.</p>
+        <div class="aside-meta">
+          <div><strong>Default</strong> PulseChain 369</div>
+          <div><strong>Bind</strong> 127.0.0.1 only</div>
+          <div><strong>CLI</strong> pulse-portfolio</div>
+        </div>
+      </details>
+    </aside>
 
-    <section class="block" aria-labelledby="run-h">
-      <h2 id="run-h" class="section-label">Run local</h2>
-      <ol class="steps">
-        <li>Clone <code>github.com/ihelpmaybe/pulse-portfolio</code></li>
-        <li><code>npm install</code></li>
-        <li><code>npm run watch:seed</code> then <code>npm run watch:scan</code></li>
-        <li><code>npm run dev:web</code> → open <code>http://127.0.0.1:3131</code></li>
-      </ol>
-    </section>
-  </main>
+    <main>
+      <div class="wallet-bar">
+        <div class="form-group">
+          <label for="wallet">Wallet</label>
+          <input id="wallet" type="text" placeholder="0x…" spellcheck="false" autocomplete="off" value="0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" />
+        </div>
+        <div class="form-group">
+          <label for="watch-pick">Watchlist</label>
+          <select id="watch-pick"><option value="">— pick watched —</option></select>
+        </div>
+        <button type="button" onclick="syncWallet()">Use</button>
+      </div>
 
-  <footer class="foot">
-    <a href="https://github.com/ihelpmaybe/pulse-portfolio" rel="noopener">github.com/ihelpmaybe/pulse-portfolio</a>
-    · MIT · SolariView ancestry in NOTICE
-  </footer>
+      <div class="panel-grid">
+        <section class="panel panel-watch">
+          <h2>Watch scan</h2>
+          <div class="row">
+            <button type="button" id="watch-scan-btn" onclick="fetchWatchScan(false)">Scan (fast)</button>
+            <button type="button" class="ghost" id="watch-scan-full-btn" onclick="fetchWatchScan(true)">Full stakes</button>
+            <button type="button" class="ghost" id="deep-bag-btn" onclick="fetchDeepBag()">Deep bag</button>
+            <span id="watch-meta" style="font-family:var(--mono);font-size:0.72rem;color:var(--muted);"></span>
+          </div>
+          <div class="output" id="watch-output"></div>
+          <div class="output" id="deep-output"></div>
+        </section>
+
+        <section class="panel panel-native">
+          <h2>Native balance</h2>
+          <div class="row">
+            <div class="form-group">
+              <label for="bal-chain">Chain(s)</label>
+              <select id="bal-chain"></select>
+            </div>
+            <button type="button" onclick="fetchBalance()">Query</button>
+          </div>
+          <div class="output" id="bal-output"></div>
+        </section>
+
+        <section class="panel panel-token">
+          <h2>Pulse token</h2>
+          <div class="presets" id="token-presets"></div>
+          <div class="row">
+            <div class="form-group" style="flex: 2 1 200px;">
+              <label for="tok-contract">Token contract</label>
+              <input id="tok-contract" type="text" placeholder="0x…" spellcheck="false" autocomplete="off" />
+            </div>
+            <div class="form-group" style="flex: 1 1 120px;">
+              <label for="tok-chain">Chain</label>
+              <select id="tok-chain"></select>
+            </div>
+            <button type="button" onclick="fetchToken()">Query</button>
+          </div>
+          <div class="output" id="tok-output"></div>
+        </section>
+
+        <section class="panel panel-stakes">
+          <h2>HEX stakes</h2>
+          <div class="row">
+            <div class="form-group">
+              <label for="stk-chain">Chain</label>
+              <select id="stk-chain">
+                <option value="pulsechain" selected>PulseChain</option>
+                <option value="ethereum">Ethereum</option>
+              </select>
+            </div>
+            <button type="button" onclick="fetchStakes()">Query</button>
+          </div>
+          <div class="output" id="stk-output"></div>
+        </section>
+
+        <details class="more-panels">
+          <summary>More — activity · NFT · RPC</summary>
+          <div class="more-grid">
+            <section class="panel">
+              <h2>Activity</h2>
+              <div class="row">
+                <div class="form-group">
+                  <label for="act-chain">Chain(s)</label>
+                  <select id="act-chain"></select>
+                </div>
+                <button type="button" onclick="fetchActivity()">Query</button>
+              </div>
+              <div class="output" id="act-output"></div>
+            </section>
+
+            <section class="panel">
+              <h2>NFT balance</h2>
+              <div class="row">
+                <div class="form-group" style="flex: 2 1 200px;">
+                  <label for="nft-contract">Collection</label>
+                  <input id="nft-contract" type="text" placeholder="0x…" spellcheck="false" autocomplete="off" />
+                </div>
+                <div class="form-group" style="flex: 1 1 120px;">
+                  <label for="nft-chain">Chain</label>
+                  <select id="nft-chain"></select>
+                </div>
+                <button type="button" onclick="fetchNFT()">Query</button>
+              </div>
+              <div class="output" id="nft-output"></div>
+            </section>
+
+            <section class="panel">
+              <h2>RPC status</h2>
+              <div class="row">
+                <div class="form-group">
+                  <label for="status-chain">Chain(s)</label>
+                  <select id="status-chain"></select>
+                </div>
+                <button type="button" onclick="fetchStatus()">Check</button>
+              </div>
+              <div class="output" id="status-output"></div>
+            </section>
+          </div>
+        </details>
+      </div>
+    </main>
+
+    <footer>
+      <span>Local-only. MIT ancestry noted in NOTICE. No telemetry.</span>
+      <div class="site-donate">
+        <span>Donate (PLS / PulseChain)</span>
+        <code class="site-donate-addr" id="donate-addr" title="0x64fB4919D9336a059cbD5F4428E319d0F232F64d">0x64fB…F64d</code>
+        <button type="button" class="site-donate-copy" id="btn-copy-donate">Copy</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const CHAINS_MULTI = [
+      { value: "pulsechain", label: "PulseChain" },
+      { value: "all", label: "All chains" },
+      { value: "ethereum", label: "Ethereum" },
+      { value: "base", label: "Base" },
+      { value: "arbitrum", label: "Arbitrum" },
+      { value: "optimism", label: "Optimism" },
+      { value: "polygon", label: "Polygon" },
+      { value: "bsc", label: "BNB Chain" },
+    ];
+
+    const CHAINS_SINGLE = CHAINS_MULTI.filter((c) => c.value !== "all");
+
+    const PULSE_TOKENS = [
+      { symbol: "HEX", address: "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39" },
+      { symbol: "WPLS", address: "0xA1077a294dDE1B09bB078844df40758a5D0f9a27" },
+      { symbol: "PLSX", address: "0x95B303987A60C71504D99Aa1b13B4DA07b0790ab" },
+      { symbol: "INC", address: "0x2fa878Ab3F87CC1C9737Fc071108F904c0B0C95d" },
+      { symbol: "DAI", address: "0x6B175474E89094C44Da98b954EedeAC495271d0F" },
+    ];
+
+    /** Last watch-scan rows for tap-to-fill */
+    let lastWatchRows = [];
+
+    function fillSelect(id, options, selected) {
+      const el = document.getElementById(id);
+      el.innerHTML = options.map((o) =>
+        `<option value="${o.value}"${o.value === selected ? " selected" : ""}>${o.label}</option>`
+      ).join("");
+    }
+
+    fillSelect("bal-chain", CHAINS_MULTI, "pulsechain");
+    fillSelect("act-chain", CHAINS_MULTI, "pulsechain");
+    fillSelect("status-chain", CHAINS_MULTI, "pulsechain");
+    fillSelect("tok-chain", CHAINS_SINGLE, "pulsechain");
+    fillSelect("nft-chain", CHAINS_SINGLE, "pulsechain");
+
+    const presets = document.getElementById("token-presets");
+    presets.innerHTML = PULSE_TOKENS.map((t) =>
+      `<button type="button" class="ghost" data-addr="${t.address}" onclick="pickToken(this)">${t.symbol}</button>`
+    ).join("");
+
+    function pickToken(btn) {
+      document.getElementById("tok-contract").value = btn.dataset.addr;
+      document.getElementById("tok-chain").value = "pulsechain";
+      presets.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+    }
+
+    function wallet() {
+      return document.getElementById("wallet").value.trim();
+    }
+
+    function syncWallet() {
+      if (!wallet()) return alert("Enter a wallet address.");
+    }
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function showLoading(id) {
+      const el = document.getElementById(id);
+      el.classList.add("visible");
+      el.innerHTML = '<pre style="color:var(--muted)">Loading…</pre>';
+    }
+
+    /**
+     * @param {string} id
+     * @param {string[]} headers
+     * @param {Array} rows
+     * @param {{ wideCols?: number[], rowClass?: string, onRowClick?: boolean }} [opts]
+     */
+    function showTable(id, headers, rows, opts = {}) {
+      const el = document.getElementById(id);
+      el.classList.add("visible");
+      const wide = new Set(opts.wideCols || []);
+      const ths = headers.map((h, i) =>
+        `<th${wide.has(i) ? ' data-col="wide"' : ""}>${esc(h)}</th>`
+      ).join("");
+      const trs = rows.map((cells, ri) => {
+        const rowCls = opts.rowClass ? ` class="${esc(opts.rowClass)}"` : "";
+        const dataAttr = opts.onRowClick ? ` data-row="${ri}"` : "";
+        return `<tr${rowCls}${dataAttr}>${cells.map((c, i) => {
+          const cls = c.cls ?? (i === cells.length - 1 && typeof c.val === "number" ? (c.val === 0 ? "zero" : "num") : "");
+          const wideAttr = wide.has(i) ? ' data-col="wide"' : "";
+          return `<td class="${esc(cls)}"${wideAttr}>${esc(String(c.val ?? c))}</td>`;
+        }).join("")}</tr>`;
+      }).join("");
+      el.innerHTML = `<div class="table-scroll"><table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>`;
+    }
+
+    function showError(id, message) {
+      const el = document.getElementById(id);
+      el.classList.add("visible");
+      el.innerHTML = `<pre class="status-err">Error: ${esc(message)}</pre>`;
+    }
+
+    async function apiFetch(path) {
+      const res = await fetch(path);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? res.statusText);
+      return json;
+    }
+
+    async function fetchBalance() {
+      const address = wallet();
+      const chain = document.getElementById("bal-chain").value;
+      if (!address) return alert("Enter a wallet address.");
+      showLoading("bal-output");
+      try {
+        const data = await apiFetch(`/api/balance?address=${encodeURIComponent(address)}&chain=${chain}`);
+        const rows = (data.results || []).map((r) => {
+          const val = parseFloat(r.formatted);
+          return [
+            r.chain,
+            r.symbol,
+            { val: val === 0 ? "0" : val.toFixed(6), cls: val === 0 ? "zero" : "num" },
+            { val: r.explorer, cls: "dim" },
+          ];
+        });
+        showTable("bal-output", ["Chain", "Symbol", "Balance", "Explorer"], rows, { wideCols: [3] });
+      } catch (err) {
+        showError("bal-output", err.message);
+      }
+    }
+
+    async function fetchToken() {
+      const address = wallet();
+      const token = document.getElementById("tok-contract").value.trim();
+      const chain = document.getElementById("tok-chain").value;
+      if (!address || !token) return alert("Enter wallet + token.");
+      showLoading("tok-output");
+      try {
+        const data = await apiFetch(`/api/token?address=${encodeURIComponent(address)}&token=${encodeURIComponent(token)}&chain=${chain}`);
+        showTable("tok-output",
+          ["Chain", "Token", "Symbol", "Balance", "Contract"],
+          [[
+            data.chain,
+            data.token,
+            data.symbol,
+            { val: parseFloat(data.formatted).toFixed(6), cls: parseFloat(data.formatted) === 0 ? "zero" : "num" },
+            { val: data.tokenAddress, cls: "dim" },
+          ]],
+          { wideCols: [4] }
+        );
+      } catch (err) {
+        showError("tok-output", err.message);
+      }
+    }
+
+    async function fetchNFT() {
+      const address = wallet();
+      const contract = document.getElementById("nft-contract").value.trim();
+      const chain = document.getElementById("nft-chain").value;
+      if (!address || !contract) return alert("Enter wallet + collection.");
+      showLoading("nft-output");
+      try {
+        const data = await apiFetch(`/api/nft?address=${encodeURIComponent(address)}&contract=${encodeURIComponent(contract)}&chain=${chain}`);
+        showTable("nft-output",
+          ["Chain", "Collection", "Symbol", "Owned", "Contract"],
+          [[
+            data.chain,
+            data.collection,
+            data.symbol,
+            { val: data.count, cls: parseInt(data.count) === 0 ? "zero" : "num" },
+            { val: data.contractAddress, cls: "dim" },
+          ]],
+          { wideCols: [4] }
+        );
+      } catch (err) {
+        showError("nft-output", err.message);
+      }
+    }
+
+    async function fetchActivity() {
+      const address = wallet();
+      const chain = document.getElementById("act-chain").value;
+      if (!address) return alert("Enter a wallet address.");
+      showLoading("act-output");
+      try {
+        const data = await apiFetch(`/api/activity?address=${encodeURIComponent(address)}&chain=${chain}`);
+        const rows = data.activity.map((r) => [
+          r.chain,
+          { val: r.txCount, cls: r.txCount === 0 ? "zero" : "num" },
+        ]);
+        showTable("act-output", ["Chain", "Tx Count"], rows);
+      } catch (err) {
+        showError("act-output", err.message);
+      }
+    }
+
+    async function fetchStatus() {
+      const chain = document.getElementById("status-chain").value;
+      showLoading("status-output");
+      try {
+        const data = await apiFetch(`/api/status?chain=${chain}`);
+        const rows = data.chains.map((r) => [
+          r.chain,
+          { val: r.chainId, cls: "dim" },
+          { val: parseInt(r.block).toLocaleString(), cls: "num" },
+        ]);
+        showTable("status-output", ["Chain", "Chain ID", "Latest Block"], rows);
+      } catch (err) {
+        showError("status-output", err.message);
+      }
+    }
+
+    async function fetchStakes() {
+      const address = wallet();
+      const chain = document.getElementById("stk-chain").value;
+      if (!address) return alert("Enter a wallet address.");
+      showLoading("stk-output");
+      try {
+        const data = await apiFetch(`/api/stakes?address=${encodeURIComponent(address)}&chain=${chain}`);
+        if (!data.stakeCount) {
+          showTable("stk-output", ["Count"], [[{ val: "0 stakes", cls: "zero" }]]);
+          return;
+        }
+        const rows = data.stakes.map((s) => [
+          { val: s.stakeId, cls: "dim" },
+          { val: s.formattedHex, cls: "num" },
+          s.stakedDays,
+          s.lockedDay,
+          s.unlockedDay || "—",
+        ]);
+        showTable("stk-output", ["ID", "HEX", "Days", "Locked", "Unlocked"], rows);
+      } catch (err) {
+        showError("stk-output", err.message);
+      }
+    }
+
+    pickToken(presets.querySelector("button"));
+
+    async function loadWatchlist() {
+      const sel = document.getElementById("watch-pick");
+      const meta = document.getElementById("watch-meta");
+      try {
+        const list = await apiFetch("/api/watchlist");
+        sel.innerHTML = '<option value="">— pick watched —</option>' +
+          (list.wallets || []).map((w) =>
+            `<option value="${esc(w.address)}">${esc(w.label || w.address.slice(0, 10))}</option>`
+          ).join("");
+        meta.textContent = `${(list.wallets || []).length} watched`;
+      } catch (err) {
+        meta.textContent = err.message;
+      }
+    }
+
+    document.getElementById("watch-pick").addEventListener("change", (e) => {
+      const v = e.target.value;
+      if (!v) return;
+      document.getElementById("wallet").value = v;
+    });
+
+    document.getElementById("watch-output").addEventListener("click", (e) => {
+      const tr = e.target.closest("tr[data-row]");
+      if (!tr) return;
+      const i = Number(tr.dataset.row);
+      const row = lastWatchRows[i];
+      if (!row?.address) return;
+      document.getElementById("wallet").value = row.address;
+      const pick = document.getElementById("watch-pick");
+      if ([...pick.options].some((o) => o.value.toLowerCase() === row.address.toLowerCase())) {
+        pick.value = [...pick.options].find((o) => o.value.toLowerCase() === row.address.toLowerCase()).value;
+      }
+    });
+
+    function fmtDelta(d) {
+      if (d == null) return { val: "·", cls: "dim" };
+      if (d === 0) return { val: "—", cls: "zero" };
+      const sign = d > 0 ? "+" : "";
+      const text = Math.abs(d) >= 1000 ? `${sign}${d.toFixed(0)}` : `${sign}${d.toFixed(2)}`;
+      return { val: text, cls: d > 0 ? "num" : "zero" };
+    }
+
+    function fmtUsd(n) {
+      if (n == null || !Number.isFinite(n)) return { val: "—", cls: "zero" };
+      if (n >= 1e9) return { val: `$${(n / 1e9).toFixed(2)}B`, cls: "num" };
+      if (n >= 1e6) return { val: `$${(n / 1e6).toFixed(2)}M`, cls: "num" };
+      if (n >= 1e3) return { val: `$${(n / 1e3).toFixed(1)}k`, cls: "num" };
+      return { val: `$${n.toFixed(2)}`, cls: "num" };
+    }
+
+    async function fetchWatchScan(full) {
+      const btn = document.getElementById("watch-scan-btn");
+      const fullBtn = document.getElementById("watch-scan-full-btn");
+      const meta = document.getElementById("watch-meta");
+      btn.disabled = true;
+      fullBtn.disabled = true;
+      const prev = btn.textContent;
+      const prevFull = fullBtn.textContent;
+      btn.textContent = full ? "…" : "Scanning…";
+      fullBtn.textContent = full ? "Scanning…" : prevFull;
+      showLoading("watch-output");
+      try {
+        const q = full ? "&full=1" : "";
+        const data = await apiFetch(`/api/watch/scan?chain=pulsechain&concurrency=2${q}`);
+        lastWatchRows = data.rows || [];
+        const headers = full
+          ? ["Label", "PLS", "Δ", "HEX", "Δ", "Stakes", "ΔN", "Staked", "~USD"]
+          : ["Label", "PLS", "Δ", "HEX", "Δ", "Stakes", "ΔN", "~USD"];
+        const rows = lastWatchRows.map((r) => {
+          if (!r.ok) {
+            return [
+              r.label || "—",
+              { val: "ERR", cls: "zero" },
+              "—", "—", "—", "—", "—",
+              ...(full ? ["—"] : []),
+              "—",
+            ];
+          }
+          const pls = r.pls != null ? Number(r.pls) : 0;
+          const hex = r.hexLiquid != null ? Number(r.hexLiquid) : 0;
+          const d = r.deltas || {};
+          const row = [
+            r.label || r.address.slice(0, 10),
+            { val: pls.toFixed(2), cls: pls ? "num" : "zero" },
+            fmtDelta(d.pls),
+            { val: hex.toFixed(2), cls: hex ? "num" : "zero" },
+            fmtDelta(d.hexLiquid),
+            { val: r.stakeCount, cls: r.stakeCount ? "num" : "zero" },
+            fmtDelta(d.stakeCount),
+          ];
+          if (full) {
+            const staked = Number(r.stakedHex) || 0;
+            row.push({ val: staked ? staked.toFixed(0) : "0", cls: staked ? "num" : "zero" });
+          }
+          row.push(fmtUsd(r.usd?.approxUsd));
+          return row;
+        });
+        showTable("watch-output", headers, rows, {
+          rowClass: "watch-row",
+          onRowClick: true,
+        });
+        const vs = data.previousScannedAt
+          ? `Δ vs ${data.previousScannedAt.slice(0, 19)}`
+          : "first scan";
+        const px = data.prices?.plsUsd != null
+          ? ` · PLS $${Number(data.prices.plsUsd).toPrecision(4)}`
+          : "";
+        meta.textContent = `${data.ok}/${data.count} ok · ${data.mode || "fast"} · ${vs}${px} · tap row → wallet · Deep bag`;
+      } catch (err) {
+        showError("watch-output", err.message);
+      } finally {
+        btn.disabled = false;
+        fullBtn.disabled = false;
+        btn.textContent = prev;
+        fullBtn.textContent = prevFull;
+      }
+    }
+
+    async function fetchDeepBag() {
+      const address = wallet();
+      if (!address) return alert("Pick a watch row or enter a wallet first.");
+      const btn = document.getElementById("deep-bag-btn");
+      btn.disabled = true;
+      showLoading("deep-output");
+      try {
+        const data = await apiFetch(`/api/bag?address=${encodeURIComponent(address)}&chain=pulsechain`);
+        const stakeRows = (data.stakes || []).slice(0, 40).map((s) => [
+          { val: s.stakeId, cls: "dim" },
+          { val: s.formattedHex, cls: "num" },
+          s.stakedDays,
+          s.lockedDay,
+          s.unlockedDay || "—",
+        ]);
+        const hexTok = (data.tokens || []).find((t) => (t.symbol || "").toUpperCase() === "HEX");
+        const summary = [
+          ["PLS", data.pls?.formatted || "—"],
+          ["HEX liquid", hexTok?.formatted || "—"],
+          ["Stakes", String(data.stakeCount || 0)],
+          ["HEX/USD", data.prices?.hexUsd != null ? String(data.prices.hexUsd) : "—"],
+          ["PLS/USD", data.prices?.plsUsd != null ? String(data.prices.plsUsd) : "—"],
+        ].map(([k, v]) => [k, { val: v, cls: "num" }]);
+        const el = document.getElementById("deep-output");
+        el.classList.add("visible");
+        // Render summary + stakes via two tables
+        const sumHtml = summary.map(([k, v]) =>
+          `<tr><td>${esc(k)}</td><td class="${esc(v.cls)}">${esc(v.val)}</td></tr>`
+        ).join("");
+        let stakesHtml = "";
+        if (stakeRows.length) {
+          stakesHtml = `<div class="table-scroll" style="margin-top:0.6rem"><table><thead><tr><th>ID</th><th>HEX</th><th>Days</th><th>Locked</th><th>Unlocked</th></tr></thead><tbody>${
+            stakeRows.map((cells) =>
+              `<tr>${cells.map((c) => `<td class="${esc(c.cls || "")}">${esc(String(c.val ?? c))}</td>`).join("")}</tr>`
+            ).join("")
+          }</tbody></table></div>`;
+          if ((data.stakeCount || 0) > stakeRows.length) {
+            stakesHtml += `<pre style="color:var(--muted);margin-top:0.4rem">Showing ${stakeRows.length} of ${data.stakeCount} stakes</pre>`;
+          }
+        } else {
+          stakesHtml = `<pre style="color:var(--muted);margin-top:0.4rem">No HEX stakes</pre>`;
+        }
+        el.innerHTML = `<div class="table-scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>${sumHtml}</tbody></table></div>${stakesHtml}`;
+      } catch (err) {
+        showError("deep-output", err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    loadWatchlist();
+
+    /** Desktop: About + More always open (grid fills width). Phone: collapsed. */
+    function syncLayoutMode() {
+      const wide = window.matchMedia("(min-width: 901px)").matches;
+      const tablet = window.matchMedia("(min-width: 601px) and (max-width: 900px)").matches;
+      const more = document.querySelector(".more-panels");
+      const aside = document.querySelector(".aside-details");
+      document.documentElement.dataset.layout = wide ? "desktop" : tablet ? "tablet" : "phone";
+      if (!more || !aside) return;
+      if (wide || tablet) {
+        more.open = true;
+        aside.open = true;
+      } else if (!more.dataset.userToggled) {
+        more.open = false;
+        aside.open = false;
+      }
+    }
+
+    document.querySelector(".more-panels")?.addEventListener("toggle", (e) => {
+      if (document.documentElement.dataset.layout === "phone") {
+        e.currentTarget.dataset.userToggled = "1";
+      }
+    });
+
+    syncLayoutMode();
+    window.matchMedia("(min-width: 901px)").addEventListener("change", syncLayoutMode);
+    window.matchMedia("(min-width: 601px) and (max-width: 900px)").addEventListener("change", syncLayoutMode);
+
+    const DONATE_ADDR = "0x64fB4919D9336a059cbD5F4428E319d0F232F64d";
+    document.getElementById("btn-copy-donate")?.addEventListener("click", async () => {
+      const btn = document.getElementById("btn-copy-donate");
+      try {
+        await navigator.clipboard.writeText(DONATE_ADDR);
+        if (btn) {
+          btn.textContent = "Copied";
+          setTimeout(() => { btn.textContent = "Copy"; }, 1600);
+        }
+      } catch (_) { /* ignore */ }
+    });
+  </script>
 </body>
 </html>

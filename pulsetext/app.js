@@ -861,6 +861,22 @@ els.depositAmount.addEventListener("input", updatePriceHint);
 els.assetSelect.addEventListener("change", updatePriceHint);
 syncNoMessage();
 
+const DONATE_ADDR = "0x64fB4919D9336a059cbD5F4428E319d0F232F64d";
+document.getElementById("btnCopyDonate")?.addEventListener("click", async () => {
+  const btn = document.getElementById("btnCopyDonate");
+  try {
+    await navigator.clipboard.writeText(DONATE_ADDR);
+    if (btn) {
+      btn.textContent = "Copied";
+      setTimeout(() => {
+        btn.textContent = "Copy";
+      }, 1600);
+    }
+  } catch {
+    /* ignore */
+  }
+});
+
 boot().catch((e) => {
   if (els.walletLine) els.walletLine.textContent = apiOfflineMessage(e.message);
 });

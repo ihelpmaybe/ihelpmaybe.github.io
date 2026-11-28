@@ -739,6 +739,26 @@ footer {
   font-size: 0.78rem;
   color: var(--muted);
   overflow-wrap: anywhere;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.site-donate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.55rem;
+}
+
+.site-donate-addr {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #d8d2c6;
+}
+
+.site-donate-copy {
+  font-size: 0.7rem;
 }
 
 code {
@@ -1472,6 +1492,12 @@ button.caller-profile-btn:hover {
   text-transform: uppercase;
   color: var(--accent);
   border: 1px solid rgba(255, 59, 92, 0.4);
+}
+
+.msg-tx {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .pay-status {
