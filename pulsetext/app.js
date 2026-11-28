@@ -861,11 +861,47 @@ els.depositAmount.addEventListener("input", updatePriceHint);
 els.assetSelect.addEventListener("change", updatePriceHint);
 syncNoMessage();
 
-const DONATE_ADDR = "0x64fB4919D9336a059cbD5F4428E319d0F232F64d";
+const DONATE_FALLBACK = "0x64fB4919D9336a059cbD5F4428E319d0F232F64d";
+const DONATE_JSON_URL = "https://ihelpmaybe.github.io/donate.json";
+const ADDR_RE = /^0x[a-fA-F0-9]{40}$/;
+let donateAddr = DONATE_FALLBACK;
+
+function shortDonate(addr) {
+  return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
+}
+
+function applyDonate(addr) {
+  donateAddr = addr;
+  const el = document.querySelector(".site-donate-addr");
+  if (el) {
+    el.textContent = shortDonate(addr);
+    el.setAttribute("title", addr);
+  }
+}
+
+async function resolveDonate() {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 2500);
+  try {
+    const res = await fetch(DONATE_JSON_URL, {
+      signal: ctrl.signal,
+      cache: "no-store",
+    });
+    if (!res.ok) return DONATE_FALLBACK;
+    const data = await res.json();
+    const address = data?.pulse?.address || data?.address || "";
+    return ADDR_RE.test(address) ? address : DONATE_FALLBACK;
+  } catch {
+    return DONATE_FALLBACK;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 document.getElementById("btnCopyDonate")?.addEventListener("click", async () => {
   const btn = document.getElementById("btnCopyDonate");
   try {
-    await navigator.clipboard.writeText(DONATE_ADDR);
+    await navigator.clipboard.writeText(donateAddr);
     if (btn) {
       btn.textContent = "Copied";
       setTimeout(() => {
@@ -876,6 +912,8 @@ document.getElementById("btnCopyDonate")?.addEventListener("click", async () => 
     /* ignore */
   }
 });
+
+resolveDonate().then(applyDonate);
 
 boot().catch((e) => {
   if (els.walletLine) els.walletLine.textContent = apiOfflineMessage(e.message);
