@@ -863,7 +863,11 @@ syncNoMessage();
 
 const DONATE_FALLBACK = "0x64fB4919D9336a059cbD5F4428E319d0F232F64d";
 const DONATE_JSON_URL = "https://ihelpmaybe.github.io/donate.json";
+const DONATE_PUBKEY_SPKI_B64 =
+  "MCowBQYDK2VwAyEAL0vlzfs/pP7qrgq3K61S1MisC0YCCSTJuiOrrVXlw2w=";
 const ADDR_RE = /^0x[a-fA-F0-9]{40}$/;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const SEEN_KEY = "ihmb-donate-updated";
 let donateAddr = DONATE_FALLBACK;
 
 function shortDonate(addr) {
@@ -879,6 +883,45 @@ function applyDonate(addr) {
   }
 }
 
+function donateB64ToU8(b64) {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+function donateDateOk(updated) {
+  if (!DATE_RE.test(updated)) return false;
+  const t = Date.parse(`${updated}T00:00:00Z`);
+  if (!Number.isFinite(t) || t > Date.now() + 2 * 86_400_000) return false;
+  try {
+    const prev = localStorage.getItem(SEEN_KEY);
+    if (prev && updated < prev) return false;
+  } catch {
+    /* ignore */
+  }
+  return true;
+}
+
+async function verifyDonateSig(v, updated, address, label, sigB64) {
+  if (!globalThis.crypto?.subtle) return false;
+  try {
+    const key = await crypto.subtle.importKey(
+      "spki",
+      donateB64ToU8(DONATE_PUBKEY_SPKI_B64),
+      { name: "Ed25519" },
+      false,
+      ["verify"],
+    );
+    const msg = new TextEncoder().encode(
+      `v${v}\n${updated}\n${address.toLowerCase()}\n${label}`,
+    );
+    return crypto.subtle.verify("Ed25519", key, donateB64ToU8(sigB64), msg);
+  } catch {
+    return false;
+  }
+}
+
 async function resolveDonate() {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 2500);
@@ -889,8 +932,22 @@ async function resolveDonate() {
     });
     if (!res.ok) return DONATE_FALLBACK;
     const data = await res.json();
+    const v = Number(data?.v ?? 0);
+    const updated = String(data?.updated ?? "");
+    const sig = String(data?.sig ?? "");
     const address = data?.pulse?.address || data?.address || "";
-    return ADDR_RE.test(address) ? address : DONATE_FALLBACK;
+    const label = data?.pulse?.label || data?.label || "";
+    if (v !== 1 || !sig || !ADDR_RE.test(address) || !donateDateOk(updated)) {
+      return DONATE_FALLBACK;
+    }
+    if (!(await verifyDonateSig(v, updated, address, label, sig))) return DONATE_FALLBACK;
+    try {
+      const prev = localStorage.getItem(SEEN_KEY);
+      if (!prev || updated > prev) localStorage.setItem(SEEN_KEY, updated);
+    } catch {
+      /* ignore */
+    }
+    return address;
   } catch {
     return DONATE_FALLBACK;
   } finally {

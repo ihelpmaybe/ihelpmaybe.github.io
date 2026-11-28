@@ -1,7 +1,9 @@
 {
+  "v": 1,
   "updated": "2026-11-28",
   "pulse": {
     "label": "Donate (PLS / PulseChain)",
     "address": "0x64fB4919D9336a059cbD5F4428E319d0F232F64d"
-  }
+  },
+  "sig": "/piPonl73VxbUOWfQJHpnLy7p2HliCvwK9cpgZtxGr1Golcs0AONiM4ZrRz5xPk90caAujPC26Nqz3Jp8M8QDg=="
 }
